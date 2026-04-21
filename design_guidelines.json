@@ -1,147 +1,126 @@
 {
-  "theme": "light",
-  "archetype": "Organic & Earthy",
-  "brand_name": "SimuTrade",
-  "emotional_tone": "Grounded, trustworthy, approachable, calm. Contrasts the high anxiety of volatility trading.",
-  "typography": {
-    "heading_font": "Outfit",
-    "body_font": "Manrope",
-    "mono_font": "JetBrains Mono",
-    "weights": {
-      "heading": "font-medium, font-semibold",
-      "body": "font-normal, font-medium"
-    },
-    "scale": {
-      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none",
-      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight",
-      "h3": "text-xl sm:text-2xl",
-      "h4": "text-lg sm:text-xl",
-      "body": "text-base leading-relaxed",
-      "small": "text-sm",
-      "overline": "text-xs tracking-[0.2em] uppercase"
-    }
-  },
+  "theme": "Light",
+  "archetype": "Archetype 4: Swiss & High-Contrast (Fintech Variant)",
   "colors": {
     "background": {
-      "base": "#F7F5F0",
-      "surface": "#EAE7E0",
-      "glass": "bg-white/70 backdrop-blur-xl backdrop-saturate-150"
+      "default": "#FFFFFF",
+      "muted": "#F8F9FA",
+      "sidebar": "#F4F5F7"
+    },
+    "primary": {
+      "DEFAULT": "#0A2540",
+      "hover": "#051A2E",
+      "foreground": "#FFFFFF"
+    },
+    "accent": {
+      "success": "#10B981",
+      "successHover": "#059669",
+      "successForeground": "#FFFFFF",
+      "danger": "#EF4444",
+      "dangerHover": "#DC2626"
     },
     "text": {
-      "primary": "#1A2421",
-      "secondary": "#4A5D54",
-      "muted": "#7A8C83"
+      "primary": "#0F172A",
+      "secondary": "#64748B",
+      "tertiary": "#94A3B8"
     },
-    "brand": {
-      "primary": "#2C4C3B",
-      "accent": "#C05746",
-      "accent_hover": "#A64B3C",
-      "success": "#3B6A56",
-      "danger": "#B84A4A"
-    },
-    "borders": {
-      "default": "#D1CDC3",
-      "subtle": "#E1DED5"
+    "border": {
+      "default": "#E2E8F0",
+      "light": "#F1F5F9"
     }
   },
-  "layout_and_spacing": {
-    "philosophy": "Generous Spacing Philosophy. Use large padding to create breathing room. Calmness over density.",
-    "container_padding": "p-6 md:p-12 lg:p-24",
-    "section_gap": "gap-12 md:gap-24 lg:gap-32",
-    "bento_grid": {
-      "marketing": "grid-cols-1 md:grid-cols-8 lg:grid-cols-12 gap-8 lg:gap-12",
-      "dashboard": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+  "typography": {
+    "headings": {
+      "fontFamily": "Outfit, sans-serif",
+      "weights": ["500", "600", "700"],
+      "tracking": "tracking-tight"
     },
-    "border_radius": {
-      "default": "rounded-lg",
-      "large": "rounded-2xl",
-      "button": "rounded-md"
+    "body": {
+      "fontFamily": "Inter, sans-serif",
+      "weights": ["400", "500"]
+    },
+    "scales": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tighter text-slate-900",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-xl sm:text-2xl font-medium tracking-tight text-slate-800",
+      "h4": "text-lg sm:text-xl font-medium text-slate-800",
+      "body": "text-base text-slate-600 leading-relaxed",
+      "small": "text-sm text-slate-500",
+      "overline": "text-xs font-semibold tracking-[0.2em] uppercase text-slate-500"
     }
   },
-  "components_strategy": {
+  "spacing": {
+    "section": "py-20 lg:py-32",
+    "container": "px-6 lg:px-12 max-w-7xl mx-auto",
+    "card": "p-6 sm:p-8"
+  },
+  "layout": {
+    "dashboard": "Bento Grid Protocol (Mode B): grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6",
+    "marketing": "Asymmetric Swiss Grid: grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12"
+  },
+  "components": {
+    "cards": "bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200",
     "buttons": {
-      "primary": "bg-[#2C4C3B] text-white hover:bg-[#1E362A] transition-colors rounded-md px-6 py-3",
-      "secondary": "bg-[#EAE7E0] text-[#1A2421] hover:bg-[#D1CDC3] transition-colors rounded-md px-6 py-3",
-      "accent": "bg-[#C05746] text-white hover:bg-[#A64B3C] transition-colors rounded-md px-6 py-3"
+      "primary": "bg-[#0A2540] hover:bg-[#051A2E] text-white rounded-lg px-6 py-2.5 font-medium transition-colors",
+      "success": "bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2.5 font-medium transition-colors",
+      "outline": "border border-slate-200 bg-transparent hover:bg-slate-50 text-slate-900 rounded-lg px-6 py-2.5 font-medium transition-colors"
     },
-    "cards": {
-      "default": "bg-[#F7F5F0] border border-[#D1CDC3] rounded-lg shadow-sm p-6",
-      "glass": "bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.05)]",
-      "interactive": "hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-[#D1CDC3] hover:border-[#4A5D54]"
-    },
-    "inputs": {
-      "default": "bg-white border border-[#D1CDC3] rounded-md focus:border-[#2C4C3B] focus:ring-1 focus:ring-[#2C4C3B] px-4 py-2"
-    },
-    "navigation": {
-      "header": "sticky top-0 z-50 bg-[#F7F5F0]/80 backdrop-blur-xl border-b border-[#D1CDC3]/50",
-      "footer": "bg-[#1A2421] text-[#EAE7E0] py-20"
+    "sidebar": "w-64 bg-[#F8F9FA] border-r border-slate-200 h-screen fixed left-0 top-0",
+    "header": "h-16 border-b border-slate-200 bg-white/80 backdrop-blur-xl sticky top-0 z-50",
+    "inputs": "bg-white border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:ring-2 focus:ring-[#0A2540]/20 focus:border-[#0A2540] transition-all",
+    "badge": {
+      "demo": "bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium",
+      "real": "bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-medium"
     }
   },
-  "visual_enhancers": {
-    "motion": {
-      "hover": "transition-transform duration-300 ease-out",
-      "entrance": "framer-motion staggered fade-up with spring physics",
-      "marquee": "slow, organic editorial ribbon using react-fast-marquee. Pale sage bg, dark olive text."
-    },
-    "textures": {
-      "noise": "Subtle SVG noise overlay on hero sections for a tactile, earthy feel."
-    },
-    "icons": {
-      "library": "@phosphor-icons/react",
-      "style": "Duotone or Regular weight, matched to text color."
-    }
+  "interactions_and_motion": {
+    "hover": "All interactive elements must change state on hover. Buttons darken, cards lift slightly (-translate-y-1).",
+    "transitions": "Use 'transition-all duration-200 ease-out' globally for standard UI changes.",
+    "page_load": "Staggered fade-up for dashboard widgets and list items."
   },
-  "media": {
-    "images": [
+  "accessibility": {
+    "contrast": "Ensure all text against backgrounds meets minimum 4.5:1 ratio (APCA guidelines).",
+    "testing": "MUST include 'data-testid' on all interactive and key informational elements (buttons, inputs, toggles, balances, charts)."
+  },
+  "media_assets": {
+    "hero_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/665453e7-75d6-45f5-8709-92527a0aed60/images/56ce5b489ce823c85513cc281e1843c75566586a51f60abfa5266ff703637928.png",
+      "description": "Abstract clean fintech 3D shapes in navy and mint, perfect for landing page hero background (use with opacity/overlay to maintain text contrast)."
+    },
+    "trading_illustration": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/665453e7-75d6-45f5-8709-92527a0aed60/images/f698cd7e90451c627ecc9ab594f2bbd641b6300418a354a584952b726a7f18b2.png",
+      "description": "Minimalist 3D isometric financial trading chart trending upward. Use in onboarding or Learn center."
+    },
+    "onboarding_texture": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/665453e7-75d6-45f5-8709-92527a0aed60/images/8416bbb983af3d725369b77c67c3ea95cf1e6b2f4308940c69041dbfbb456aec.png",
+      "description": "Soft gradient background for auth pages or onboarding wizard."
+    },
+    "testimonial_portraits": [
       {
-        "category": "hero_background",
-        "url": "https://images.pexels.com/photos/26447275/pexels-photo-26447275.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Golden sand dunes with rippling patterns, used with heavy bg-[#F7F5F0]/80 overlay to provide subtle organic texture without distracting from content."
+        "url": "https://images.pexels.com/photos/36934779/pexels-photo-36934779.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Professional user portrait"
       },
       {
-        "category": "education_section",
-        "url": "https://images.unsplash.com/photo-1768471125958-78556538fadc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1Mjh8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjBzdHVkeWluZyUyMGNhbG0lMjB3b3Jrc3BhY2V8ZW58MHx8fHwxNzc2Nzc5MzcyfDA&ixlib=rb-4.1.0&q=85",
-        "description": "Woman working at a desk in a plant-filled studio, representing the calm, educational focus of SimuTrade."
-      },
-      {
-        "category": "risk_management_feature",
-        "url": "https://images.pexels.com/photos/20258909/pexels-photo-20258909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Minimalist view of a modern building facade against a clear blue sky, symbolizing structure, risk management, and stability."
-      },
-      {
-        "category": "data_visualization_abstract",
-        "url": "https://images.pexels.com/photos/20067914/pexels-photo-20067914.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Black and white abstract texture of rippling sand dunes, used for background in data/analytics sections with a terracotta tint."
+        "url": "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0JTIwY2xlYW58ZW58MHx8fHwxNzc2NzgxMzM1fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Casual professional portrait"
       }
     ],
-    "logos": [
+    "broker_logos": [
       {
-        "category": "market_data_partners",
-        "urls": [
-          "Alpha Vantage (Text)",
-          "Yahoo Finance (Text)",
-          "Cboe VIX (Text)"
-        ],
-        "instruction": "Use purely CSS/Typography for partner logos. Make them monochromatic (#4A5D54), text-based, and small. Do not use external image placeholders."
+        "url": "https://images.pexels.com/photos/9973170/pexels-photo-9973170.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Partner Broker 1 Logo"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1764344815160-0e2afc6939a0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxjb21wYW55JTIwbG9nbyUyMHdoaXRlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NzY3MDgzOTV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Partner Broker 2 Logo"
       }
     ]
   },
-  "specific_page_instructions": {
-    "landing_page": "Use the Tetris bento grid. The hero must feature the sand dunes image with a strong #F7F5F0/80 overlay. Introduce the 'Marquee' for market data but style it like an 'Editorial Ribbon' (slow, serif/mono text, earthy colors).",
-    "onboarding_wizard": "Clean, distraction-free layout. Glassmorphism progress bar. Step 1: Profile. Step 2: Risk Tolerance. Step 3: Tutorial. Use warm terracotta accents to guide the user.",
-    "dashboard_&_trading": "The 'Control Room' grid. Dense but with the calm earthy palette. Charts should use Recharts with colors: #2C4C3B (Up/Main), #C05746 (Down/Volatility). NO red/green default finance colors. Use Moss and Terracotta instead. Prominent 'Demo Mode' disclaimer in the sticky header.",
-    "learn_page": "Editorial blog style. Use pure HTML + Tailwind for article layouts. Generous line-height (`leading-relaxed`), large initial drop caps, and inset images with rounded-lg borders.",
-    "file_extension_note": "Since the environment uses .js files, ensure all React components are written in JS/JSX, not TSX."
-  },
-  "accessibility_and_testing": {
-    "contrast": "Ensure all text meets APCA standards. Terracotta (#C05746) on Bone White (#F7F5F0) is APCA compliant for large text, but check button text.",
-    "testing": "All interactive elements MUST include `data-testid` attribute (e.g., `data-testid=\"trade-submit-button\"`)."
-  },
-  "libraries": {
-    "icons": "yarn add @phosphor-icons/react",
-    "animation": "yarn add framer-motion react-fast-marquee",
-    "charts": "yarn add recharts",
-    "routing": "react-router-dom",
-    "components": "shadcn/ui (Tailwind CSS, Radix UI)"
+  "specific_instructions_to_main_agent": {
+    "demo_real_toggle": "Create a highly visible, pill-shaped toggle switch in the main header or top of the sidebar. In Demo mode, show a subtle gray/blue 'Practice' badge. In Real mode, switch accent to soft green 'Live' badge and update dashboard CTAs to point to broker redirect links instead of internal simulator actions.",
+    "charts": "Use Recharts or Shadcn charts. Ensure lines and areas use the primary navy or accent green colors. No grid lines on the X/Y axes to maintain the clean Stripe-like look.",
+    "tech_stack": "MUST use standard .js extensions (NO TSX). Use standard HTML elements formatted with Tailwind classes for layout structures. For complex interactive elements like the mode toggle or modal popups, use customized Shadcn UI components.",
+    "icons": "Use lucide-react (default) with thin stroke-width (1.5) to keep the minimal aesthetic.",
+    "testing": "All interactive elements and key text MUST have a 'data-testid' attribute (e.g., data-testid='mode-toggle-switch')."
   }
 }
