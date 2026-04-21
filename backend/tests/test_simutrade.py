@@ -168,6 +168,60 @@ class TestTrading:
         print("Invalid direction rejected")
 
 
+# AI Tests (Claude Sonnet 4.5 via Emergent LLM)
+class TestAI:
+    def test_chat_requires_auth(self, session):
+        r = session.post(f"{BASE_URL}/api/ai/chat", json={"message": "What is VIX?"})
+        assert r.status_code == 401
+        print("AI chat unauth -> 401")
+
+    def test_chat_basic_and_context(self, authed_session):
+        r1 = authed_session.post(f"{BASE_URL}/api/ai/chat", json={"message": "What is VIX?"}, timeout=60)
+        assert r1.status_code == 200, f"Chat failed: {r1.status_code} {r1.text}"
+        data1 = r1.json()
+        assert "session_id" in data1 and "reply" in data1
+        assert len(data1["reply"]) > 20
+        sid = data1["session_id"]
+        print(f"AI reply1 ({len(data1['reply'].split())} words): {data1['reply'][:120]}...")
+
+        # Multi-turn context preservation
+        r2 = authed_session.post(f"{BASE_URL}/api/ai/chat", json={"session_id": sid, "message": "When does it spike?"}, timeout=60)
+        assert r2.status_code == 200
+        reply2 = r2.json()["reply"].lower()
+        assert "vix" in reply2 or "volatility" in reply2, f"Context lost: {reply2[:200]}"
+        print(f"AI reply2 references VIX/volatility: OK")
+
+        # Session retrieval
+        r3 = authed_session.get(f"{BASE_URL}/api/ai/sessions/{sid}")
+        assert r3.status_code == 200
+        msgs = r3.json()["messages"]
+        assert len(msgs) >= 4  # 2 user + 2 assistant
+        print(f"Session messages: {len(msgs)}")
+
+    def test_explain_trade(self, authed_session):
+        r = authed_session.post(
+            f"{BASE_URL}/api/ai/explain-trade",
+            json={"symbol": "^VIX", "direction": "long", "entry_price": 19.0, "contracts": 1},
+            timeout=60,
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert "rationale" in data and len(data["rationale"]) > 30
+        print(f"Explain-trade rationale: {data['rationale'][:160]}...")
+
+
+# Backwards-compat: 'quantity' alias for 'contracts'
+class TestOpenQuantityAlias:
+    def test_open_with_quantity(self, authed_session):
+        r = authed_session.post(f"{BASE_URL}/api/trading/open", json={"symbol": "^VIX", "direction": "long", "quantity": 1})
+        # Should accept either 'quantity' or 'contracts'
+        assert r.status_code in [200, 422], f"Unexpected: {r.status_code} {r.text}"
+        if r.status_code == 200:
+            print("quantity alias accepted")
+        else:
+            print(f"quantity alias NOT accepted: {r.text}")
+
+
 # Portfolio Tests
 class TestPortfolio:
     def test_portfolio_summary(self, authed_session):

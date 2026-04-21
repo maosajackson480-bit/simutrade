@@ -6,6 +6,7 @@ import {
   LayoutDashboard, TrendingUp, Briefcase, BookOpen, Settings,
   LogOut, Menu, X, ExternalLink, FlaskConical
 } from "lucide-react";
+import AiAssistant from "./AiAssistant";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -180,6 +181,9 @@ export default function Layout({ children }) {
         {/* Page content */}
         <div className="flex-1 p-4 md:p-8">{children}</div>
       </main>
+
+      {/* Floating AI assistant (Demo mode only — educational) */}
+      {isDemo && <AiAssistant />}
     </div>
   );
 }

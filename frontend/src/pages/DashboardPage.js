@@ -30,10 +30,15 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([api.get("/portfolio/summary"), api.get("/market/quotes"), api.get("/trading/positions")])
-      .then(([p, q, pos]) => {
-        setPortfolio(p.data); setQuotes(q.data); setPositions(pos.data.slice(0, 5));
-      }).finally(() => setLoading(false));
+    const load = () =>
+      Promise.all([api.get("/portfolio/summary"), api.get("/market/quotes"), api.get("/trading/positions")])
+        .then(([p, q, pos]) => {
+          setPortfolio(p.data); setQuotes(q.data); setPositions(pos.data.slice(0, 5));
+        }).finally(() => setLoading(false));
+    load();
+    // Real-time polling every 30s for near-live VIX ticks
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const pct = portfolio?.total_return_pct ?? 0;

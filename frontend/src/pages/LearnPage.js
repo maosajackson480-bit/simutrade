@@ -39,6 +39,38 @@ const ARTICLES = [
       { heading: "Diversification", body: `Don't concentrate all capital in one index. Spreading positions across VIX (equity), OVX (oil), and GVZ (gold) provides diversification since these don't always correlate.\n\nUse SimuTrade's Practice Mode to experiment with different allocation strategies before risking real money.` },
     ],
   },
+  {
+    id: "term-structure", category: "Advanced", title: "VIX Term Structure & Contango",
+    desc: "Why long-VIX ETFs bleed value in calm markets.", readTime: "7 min",
+    content: [
+      { heading: "What Is Term Structure?", body: `The VIX itself is a spot index — you cannot directly buy it. Instead, traders use VIX futures, which have different prices for different expiration months. The curve of these prices is the term structure.\n\nIn normal, calm markets, further-dated futures are more expensive than near-dated ones. This upward-sloping curve is called CONTANGO.` },
+      { heading: "Contango: The Silent Killer", body: `When VIX futures are in contango, a long position loses value even if the spot VIX stays flat. Why? As each contract approaches expiry, it converges to the lower spot price — a process called "roll decay".\n\nThis is why products like VXX (a long-VIX ETN) are generally poor long-term holdings: they continuously lose ~5–10% per month to contango.\n\nFor short-term tactical long-vol trades (days, not months), contango is less punishing.` },
+      { heading: "Backwardation: A Warning", body: `When near-dated futures trade ABOVE later ones, the curve inverts into backwardation. This is rare and almost always signals acute market stress — Feb 2018, Mar 2020, and brief 2022 periods are examples.\n\nTraders often watch for the VIX curve flipping into backwardation as a "risk off" confirmation signal.` },
+    ],
+  },
+  {
+    id: "reading-charts", category: "Practice", title: "Reading a Volatility Chart",
+    desc: "Patterns, spikes, and what to ignore.", readTime: "5 min",
+    content: [
+      { heading: "Unique Chart Behaviour", body: `Volatility indices don't move like stocks. They exhibit:\n\n• Sharp, short spikes followed by slower decay\n• A floor around 9–12 (volatility never goes to zero)\n• Rapid mean reversion from extremes\n• Clustering: high-vol regimes persist before resolving\n\nThis is why classic trend-following techniques often fail on VIX — you're usually better off fading extremes than chasing them.` },
+      { heading: "Key Reference Levels", body: `When you look at a VIX chart, always note:\n• The 52-week high and low\n• The 200-day moving average\n• The area around 20 (regime transition level)\n\nOn SimuTrade's /trading page, use the 1M / 3M / 1Y buttons to identify where the current price sits within its recent range before opening a position.` },
+    ],
+  },
+  {
+    id: "when-to-close", category: "Strategy", title: "When to Close a Position",
+    desc: "Entry is easy. Exiting well is the hard part.", readTime: "4 min",
+    content: [
+      { heading: "Pre-Define Your Exit", body: `Before opening any simulated position, write down (or mentally commit to) three numbers:\n1) Profit target — price/P&L at which you close for a win\n2) Stop loss — price/P&L at which you cut losses\n3) Time stop — maximum days you'll hold\n\nHaving these decided in advance removes emotion from the exit decision.` },
+      { heading: "Common Exit Triggers", body: `• Profit target hit (often 1.5–3× your risk)\n• Stop-loss breached\n• Thesis invalidated by news or data\n• Volatility regime has shifted (e.g. VIX moved from 30+ back under 20)\n• Time decay / roll costs eating into gains\n\nIn SimuTrade, use the Close button on Open Positions and review the realized P&L on your Portfolio page to learn from each round-trip.` },
+    ],
+  },
+  {
+    id: "vix-vs-peers", category: "Indices", title: "VIX vs VXN vs OVX — Which to Trade?",
+    desc: "Choosing the right index for your macro view.", readTime: "4 min",
+    content: [
+      { heading: "Pick the Right Weapon", body: `Your choice of index should reflect your directional view:\n\n• Broad-market panic (earnings, Fed) → VIX\n• Tech-specific risk (AI bubble, NASDAQ downgrade) → VXN\n• Oil supply/demand shock (OPEC, Middle East) → OVX\n• Flight-to-safety / USD instability → GVZ\n• Small-cap recession risk → RVX\n• Euro-specific FX stress → EVZ\n• Meta-trade on VIX itself → VVIX\n\nMost beginners should start with VIX — it's the most liquid, most-studied, and has the richest educational context.` },
+    ],
+  },
 ];
 
 const GLOSSARY = [

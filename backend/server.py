@@ -14,6 +14,7 @@ from routes.auth import router as auth_router
 from routes.market import router as market_router
 from routes.trading import router as trading_router
 from routes.portfolio import router as portfolio_router
+from routes.ai import router as ai_router
 import os
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ api_router.include_router(auth_router)
 api_router.include_router(market_router)
 api_router.include_router(trading_router)
 api_router.include_router(portfolio_router)
+api_router.include_router(ai_router)
 
 app.include_router(api_router)
 

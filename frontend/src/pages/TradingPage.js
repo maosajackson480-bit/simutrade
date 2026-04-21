@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Info, X, CheckCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Info, X, CheckCircle, Sparkles } from "lucide-react";
 import Layout from "../components/Layout";
 import api from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -29,11 +29,20 @@ export default function TradingPage() {
   const [tradeLoading, setTradeLoading] = useState(false);
   const [msg, setMsg] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [rationale, setRationale] = useState(null);
+  const [rationaleLoading, setRationaleLoading] = useState(false);
   const { refreshUser } = useAuth();
 
   useEffect(() => {
-    api.get("/market/quotes").then((r) => setIndices(r.data));
+    const loadQuotes = () => api.get("/market/quotes").then((r) => setIndices(r.data));
+    loadQuotes();
     loadPositions();
+    // Poll every 30s for near-live ticks
+    const interval = setInterval(() => {
+      loadQuotes();
+      loadPositions();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => { loadChart(); }, [selected, period]);
@@ -51,12 +60,20 @@ export default function TradingPage() {
   const handleTrade = async () => {
     const c = parseFloat(contracts);
     if (!c || c <= 0) return;
-    setTradeLoading(true); setMsg(null);
+    setTradeLoading(true); setMsg(null); setRationale(null);
     try {
-      await api.post("/trading/open", { symbol: selected, direction, contracts: c });
+      const r = await api.post("/trading/open", { symbol: selected, direction, contracts: c });
       setMsg({ ok: true, text: `${direction.toUpperCase()} ${c}× ${selected.replace("^", "")} opened.` });
       await refreshUser();
       loadPositions();
+      // Fetch AI rationale (non-blocking)
+      setRationaleLoading(true);
+      api.post("/ai/explain-trade", {
+        symbol: selected, direction, entry_price: r.data.entry_price, contracts: c,
+      })
+        .then((res) => setRationale(res.data.rationale))
+        .catch(() => {})
+        .finally(() => setRationaleLoading(false));
     } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || "Trade failed" }); }
     finally { setTradeLoading(false); }
   };
@@ -88,6 +105,37 @@ export default function TradingPage() {
                 {msg.ok ? <CheckCircle size={15} /> : <X size={15} />}{msg.text}
               </div>
               <button onClick={() => setMsg(null)}><X size={13} /></button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {(rationale || rationaleLoading) && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-4 bg-[#0A2540] rounded-xl px-5 py-4 text-white"
+              data-testid="trade-rationale"
+            >
+              <div className="flex items-start gap-3">
+                <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                  <Sparkles size={13} strokeWidth={2.2} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs uppercase tracking-wider font-semibold text-emerald-300 mb-1">
+                    Why this trade · educational
+                  </p>
+                  {rationaleLoading ? (
+                    <p className="text-sm text-slate-300 animate-pulse">SimuBot is analysing your position…</p>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-slate-100">{rationale}</p>
+                  )}
+                </div>
+                <button onClick={() => setRationale(null)} className="text-slate-400 hover:text-white">
+                  <X size={14} />
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
