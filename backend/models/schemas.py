@@ -24,6 +24,15 @@ class OnboardingRequest(BaseModel):
     trading_goals: List[str] = []
 
 
+class ProfileUpdateRequest(BaseModel):
+    name: Optional[str] = None
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class TradeRequest(BaseModel):
     symbol: str
     direction: str

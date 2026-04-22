@@ -9,6 +9,7 @@ from core.security import (
 )
 from models.schemas import (
     RegisterRequest, LoginRequest, GoogleSessionRequest, OnboardingRequest,
+    ProfileUpdateRequest, PasswordChangeRequest,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -160,3 +161,54 @@ async def complete_onboarding(req: OnboardingRequest, request: Request):
         }},
     )
     return {"message": "Onboarding complete"}
+
+
+@router.put("/profile")
+async def update_profile(req: ProfileUpdateRequest, request: Request):
+    user = await get_current_user(request)
+    updates = {}
+    if req.name is not None:
+        name = req.name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Name cannot be empty")
+        updates["name"] = name
+    if updates:
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
+    new_user = await db.users.find_one(
+        {"user_id": user["user_id"]}, {"_id": 0, "password_hash": 0},
+    )
+    return new_user
+
+
+@router.post("/password")
+async def change_password(req: PasswordChangeRequest, request: Request):
+    user = await get_current_user(request)
+    if user.get("auth_type") != "email":
+        raise HTTPException(status_code=400, detail="Password change only available for email accounts")
+    full = await db.users.find_one({"user_id": user["user_id"]})
+    if not verify_password(req.current_password, full.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    if len(req.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"password_hash": hash_password(req.new_password)}},
+    )
+    return {"message": "Password updated"}
+
+
+@router.delete("/account")
+async def delete_account(request: Request):
+    """Permanently delete the authenticated user's account and all related data.
+
+    Does NOT disconnect their Deriv (real) funds — we only delete the encrypted
+    token we held for them. The actual Deriv account remains on Deriv.com.
+    """
+    user = await get_current_user(request)
+    uid = user["user_id"]
+    await db.users.delete_one({"user_id": uid})
+    await db.positions.delete_many({"user_id": uid})
+    await db.sessions.delete_many({"user_id": uid})
+    await db.deriv_accounts.delete_many({"user_id": uid})
+    await db.ai_messages.delete_many({"user_id": uid})
+    return {"message": "Account deleted"}
