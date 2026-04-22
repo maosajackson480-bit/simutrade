@@ -64,7 +64,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5F0] flex items-center justify-center px-4 py-12 font-manrope">
+    <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center px-4 py-12 font-manrope">
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-10">
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
             </div>
             <span className="font-outfit text-2xl font-semibold text-[#1A2421]">SimuTrade</span>
           </div>
-          <p className="text-[#4A5D54] text-sm">Let's personalize your experience</p>
+          <p className="text-[#415A77] text-sm">Let's personalize your experience</p>
         </div>
 
         {/* Step progress */}
@@ -83,16 +83,16 @@ export default function OnboardingPage() {
             <React.Fragment key={s.id}>
               <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all ${
                 step === s.id
-                  ? "bg-[#2C4C3B] text-white shadow-sm"
+                  ? "bg-[#426B1F] text-white shadow-sm"
                   : step > s.id
-                  ? "bg-[#2C4C3B]/10 text-[#2C4C3B]"
+                  ? "bg-[#426B1F]/10 text-[#426B1F]"
                   : "bg-[#EAE7E0] text-[#7A8C83]"
               }`}>
                 {step > s.id ? <CheckCircle size={14} weight="fill" /> : <s.icon size={14} />}
                 <span>{s.title}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-px w-6 transition-colors ${step > s.id ? "bg-[#2C4C3B]" : "bg-[#D1CDC3]"}`} />
+                <div className={`h-px w-6 transition-colors ${step > s.id ? "bg-[#426B1F]" : "bg-[#D1CDC3]"}`} />
               )}
             </React.Fragment>
           ))}
@@ -113,7 +113,7 @@ export default function OnboardingPage() {
                 <h2 className="font-outfit text-2xl font-semibold text-[#1A2421] mb-2">
                   What's your trading experience?
                 </h2>
-                <p className="text-sm text-[#4A5D54] mb-8">
+                <p className="text-sm text-[#415A77] mb-8">
                   We'll tailor your experience and recommendations based on your background.
                 </p>
                 <div className="space-y-3">
@@ -124,8 +124,8 @@ export default function OnboardingPage() {
                       data-testid={`experience-${opt.value}`}
                       className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 ${
                         experience === opt.value
-                          ? "border-[#2C4C3B] bg-[#2C4C3B]/5"
-                          : "border-[#D1CDC3] hover:border-[#4A5D54]"
+                          ? "border-[#426B1F] bg-[#426B1F]/5"
+                          : "border-[#D1CDC3] hover:border-[#415A77]"
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ export default function OnboardingPage() {
                           <p className="text-xs text-[#7A8C83] mt-0.5">{opt.desc}</p>
                         </div>
                         {experience === opt.value && (
-                          <CheckCircle size={20} weight="fill" className="text-[#2C4C3B] shrink-0" />
+                          <CheckCircle size={20} weight="fill" className="text-[#426B1F] shrink-0" />
                         )}
                       </div>
                     </button>
@@ -148,7 +148,7 @@ export default function OnboardingPage() {
                 <h2 className="font-outfit text-2xl font-semibold text-[#1A2421] mb-2">
                   What's your risk tolerance?
                 </h2>
-                <p className="text-sm text-[#4A5D54] mb-8">
+                <p className="text-sm text-[#415A77] mb-8">
                   This helps us guide your first simulated trades with appropriate position sizing.
                 </p>
                 <div className="space-y-3">
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
                 <h2 className="font-outfit text-2xl font-semibold text-[#1A2421] mb-2">
                   Quick orientation
                 </h2>
-                <p className="text-sm text-[#4A5D54] mb-6">
+                <p className="text-sm text-[#415A77] mb-6">
                   Select your goals (optional), then start exploring the simulator.
                 </p>
                 <div className="flex flex-wrap gap-2 mb-8">
@@ -194,8 +194,8 @@ export default function OnboardingPage() {
                       data-testid={`goal-${g.replace(/\s+/g, "-").toLowerCase()}`}
                       className={`px-4 py-2 rounded-full text-xs font-medium border transition-all ${
                         goals.includes(g)
-                          ? "bg-[#2C4C3B] text-white border-[#2C4C3B]"
-                          : "bg-white text-[#4A5D54] border-[#D1CDC3] hover:border-[#2C4C3B]"
+                          ? "bg-[#426B1F] text-white border-[#426B1F]"
+                          : "bg-white text-[#415A77] border-[#D1CDC3] hover:border-[#426B1F]"
                       }`}
                     >
                       {g}
@@ -204,7 +204,7 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* Key concepts */}
-                <div className="bg-[#F7F5F0] rounded-xl p-5 space-y-3">
+                <div className="bg-[#F5F5F0] rounded-xl p-5 space-y-3">
                   <h4 className="font-outfit font-semibold text-sm text-[#1A2421]">Key concepts to know:</h4>
                   {[
                     ["VIX", "CBOE's \"fear gauge\" — measures expected S&P 500 volatility over 30 days"],
@@ -213,8 +213,8 @@ export default function OnboardingPage() {
                     ["Contracts", "Number of units you're trading (1 contract = 1 unit of the index value)"],
                   ].map(([term, def]) => (
                     <div key={term} className="flex gap-3">
-                      <span className="font-mono text-xs font-semibold text-[#2C4C3B] bg-[#2C4C3B]/10 rounded px-2 py-0.5 h-fit mt-0.5">{term}</span>
-                      <span className="text-xs text-[#4A5D54] leading-relaxed">{def}</span>
+                      <span className="font-mono text-xs font-semibold text-[#426B1F] bg-[#426B1F]/10 rounded px-2 py-0.5 h-fit mt-0.5">{term}</span>
+                      <span className="text-xs text-[#415A77] leading-relaxed">{def}</span>
                     </div>
                   ))}
                 </div>
@@ -237,7 +237,7 @@ export default function OnboardingPage() {
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
               data-testid="onboarding-next"
-              className="flex items-center gap-2 bg-[#2C4C3B] text-white px-8 py-3 rounded-xl text-sm font-medium hover:bg-[#1E362A] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-[#426B1F] text-white px-8 py-3 rounded-xl text-sm font-medium hover:bg-[#1E362A] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue <ArrowRight size={16} />
             </button>

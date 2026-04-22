@@ -31,9 +31,27 @@ const STEPS = [
 ];
 
 export default function LandingPage() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
-  const cta = () => navigate(user ? "/dashboard" : "/auth");
+  const [guestLoading, setGuestLoading] = useState(false);
+
+  const goDemo = async () => {
+    if (user) return navigate("/dashboard");
+    setGuestLoading(true);
+    try {
+      const API = process.env.REACT_APP_BACKEND_URL;
+      const res = await fetch(`${API}/api/auth/guest`, { method: "POST" });
+      const data = await res.json();
+      if (data.token) {
+        login(data.user, data.token);
+        navigate("/dashboard");
+      }
+    } finally {
+      setGuestLoading(false);
+    }
+  };
+
+  const goReal = () => navigate(user ? "/brokers" : "/auth?next=/brokers");
 
   return (
     <div className="min-h-screen bg-white font-inter">
@@ -41,10 +59,10 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#0A2540] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#1B263B] rounded-lg flex items-center justify-center">
               <span className="text-white font-outfit font-bold text-sm">S</span>
             </div>
-            <span className="font-outfit text-lg font-semibold text-[#0A2540]">SimuTrade</span>
+            <span className="font-outfit text-lg font-semibold text-[#1B263B]">SimuTrade</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <Link to="/learn" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Learn</Link>
@@ -53,14 +71,14 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             {user ? (
               <button onClick={() => navigate("/dashboard")} data-testid="nav-dashboard-cta"
-                className="bg-[#0A2540] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors shadow-button">
+                className="bg-[#1B263B] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors shadow-button">
                 Dashboard
               </button>
             ) : (
               <>
                 <Link to="/auth" data-testid="nav-login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Sign In</Link>
                 <Link to="/auth" data-testid="nav-signup"
-                  className="bg-[#0A2540] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors shadow-button">
+                  className="bg-[#1B263B] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors shadow-button">
                   Get Started Free
                 </Link>
               </>
@@ -95,32 +113,39 @@ export default function LandingPage() {
         />
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 md:py-36">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[#0A2540] bg-slate-100 border border-slate-200 rounded-full px-4 py-1.5 mb-8">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[#1B263B] bg-slate-100 border border-slate-200 rounded-full px-4 py-1.5 mb-8">
               Free Volatility Trading Simulator
             </span>
-            <h1 className="font-outfit text-5xl sm:text-6xl lg:text-7xl font-semibold text-[#0A2540] tracking-tight leading-[1.08] mb-6">
+            <h1 className="font-outfit text-5xl sm:text-6xl lg:text-7xl font-medium text-[#1B263B] tracking-tight leading-[1.05] mb-6">
               Master Volatility.<br />
-              <span className="text-emerald-500">Without the Risk.</span>
+              <span className="text-[#E07A5F]">Without the Risk.</span>
             </h1>
-            <p className="text-lg text-slate-500 leading-relaxed max-w-2xl mb-10 font-inter">
+            <p className="text-lg text-[#415A77] leading-relaxed max-w-2xl mb-10 font-manrope">
               Trade CBOE volatility indices — VIX, VXN, OVX, and more — using $10,000 in virtual currency.
-              Learn professional strategies in a zero-risk environment.
+              Zero signup friction. Connect Deriv later for real execution.
             </p>
-            <div className="flex flex-wrap gap-4 mb-14">
-              <button onClick={cta} data-testid="hero-cta-primary"
-                className="flex items-center gap-2 bg-[#0A2540] text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-[#051A2E] transition-all hover:shadow-lg duration-200">
-                Start Trading Free <ArrowRight size={17} strokeWidth={2} />
+            <div className="flex flex-wrap gap-3 mb-10">
+              <button onClick={goDemo} disabled={guestLoading} data-testid="hero-cta-demo"
+                className="flex items-center gap-2 bg-[#E07A5F] text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-[#D36649] active:scale-[0.98] transition-all duration-200 shadow-card disabled:opacity-70">
+                {guestLoading ? "Starting..." : "Start Demo Trading"} <ArrowRight size={17} strokeWidth={2} />
+              </button>
+              <button onClick={goReal} data-testid="hero-cta-real"
+                className="flex items-center gap-2 bg-[#1B263B] text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-[#2B3A55] active:scale-[0.98] transition-all duration-200">
+                Start Real Trading
               </button>
               <Link to="/learn" data-testid="hero-cta-learn"
-                className="flex items-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-xl text-base font-medium hover:border-slate-300 hover:bg-slate-50 transition-all duration-200">
-                Explore Learning Center
+                className="flex items-center gap-2 bg-white text-[#1B263B] border-2 border-[#E5E5DF] px-7 py-3.5 rounded-xl text-base font-medium hover:border-[#1B263B] transition-all duration-200">
+                Learning Center
               </Link>
             </div>
+            <p className="text-xs text-[#778DA9] mb-10">
+              No signup required for demo. Real trading is executed via <span className="font-semibold text-[#1B263B]">Deriv</span> — we never hold funds.
+            </p>
             <div className="flex flex-wrap gap-10">
-              {[["7", "Volatility Indices"], ["$10K", "Virtual Balance"], ["Free", "No Credit Card"]].map(([v, l]) => (
+              {[["7", "Volatility Indices"], ["$10K", "Virtual Balance"], ["0s", "Signup Time"]].map(([v, l]) => (
                 <div key={l}>
-                  <p className="font-outfit text-2xl font-semibold text-[#0A2540]">{v}</p>
-                  <p className="text-sm text-slate-400 mt-0.5">{l}</p>
+                  <p className="font-outfit text-2xl font-medium text-[#1B263B]">{v}</p>
+                  <p className="text-sm text-[#778DA9] mt-0.5">{l}</p>
                 </div>
               ))}
             </div>
@@ -133,7 +158,7 @@ export default function LandingPage() {
         <Marquee speed={28} gradient={false} pauseOnHover>
           {TICKERS.map((t, i) => (
             <span key={i} className="mx-10 text-xs font-outfit font-medium tracking-widest uppercase text-slate-400">
-              <span className="text-[#0A2540] font-semibold">{t.sym}</span>
+              <span className="text-[#1B263B] font-semibold">{t.sym}</span>
               <span className="mx-1.5 text-slate-300">·</span>
               <span className="font-mono text-slate-600">{t.val}</span>
               <span className={`ml-1.5 font-mono text-xs ${t.up ? "text-emerald-500" : "text-red-400"}`}>
@@ -150,7 +175,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <motion.h2 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="font-outfit text-4xl font-semibold text-[#0A2540] mb-4">
+              className="font-outfit text-4xl font-semibold text-[#1B263B] mb-4">
               Everything you need to learn volatility
             </motion.h2>
             <p className="text-slate-500 max-w-xl mx-auto text-base">
@@ -163,9 +188,9 @@ export default function LandingPage() {
                 viewport={{ once: true }} transition={{ delay: i * 0.07 }}
                 className="bg-white border border-slate-200 rounded-xl p-6 card-hover">
                 <div className="w-10 h-10 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center mb-4">
-                  <f.icon size={20} strokeWidth={1.5} className="text-[#0A2540]" />
+                  <f.icon size={20} strokeWidth={1.5} className="text-[#1B263B]" />
                 </div>
-                <h3 className="font-outfit text-base font-semibold text-[#0A2540] mb-2">{f.title}</h3>
+                <h3 className="font-outfit text-base font-semibold text-[#1B263B] mb-2">{f.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
@@ -174,10 +199,10 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-24 px-6 bg-[#F8F9FA]">
+      <section className="py-24 px-6 bg-[#F5F5F0]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-outfit text-4xl font-semibold text-[#0A2540] mb-4">Up and running in minutes</h2>
+            <h2 className="font-outfit text-4xl font-semibold text-[#1B263B] mb-4">Up and running in minutes</h2>
             <p className="text-slate-500 max-w-md mx-auto">Three steps to start your volatility trading journey.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -185,13 +210,13 @@ export default function LandingPage() {
               <motion.div key={s.n} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                 <div className="font-outfit text-5xl font-bold text-slate-200 mb-4 select-none">{s.n}</div>
-                <h3 className="font-outfit text-xl font-semibold text-[#0A2540] mb-3">{s.t}</h3>
+                <h3 className="font-outfit text-xl font-semibold text-[#1B263B] mb-3">{s.t}</h3>
                 <p className="text-slate-500 text-sm leading-relaxed">{s.d}</p>
               </motion.div>
             ))}
           </div>
           <div className="text-center mt-14">
-            <button onClick={cta} data-testid="steps-cta"
+            <button onClick={goDemo} data-testid="steps-cta"
               className="inline-flex items-center gap-2 bg-emerald-500 text-white px-10 py-4 rounded-xl font-semibold hover:bg-emerald-600 transition-all hover:shadow-lg duration-200">
               Start Simulating Now <ArrowRight size={17} strokeWidth={2} />
             </button>
@@ -212,7 +237,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 bg-[#0A2540]">
+      <section className="py-24 px-6 bg-[#1B263B]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-outfit text-4xl font-semibold text-white mb-5">
             Ready to learn volatility trading?
@@ -220,7 +245,7 @@ export default function LandingPage() {
           <p className="text-slate-400 mb-10 text-base">
             Join thousands of learners mastering volatility indices — completely risk-free.
           </p>
-          <button onClick={cta}
+          <button onClick={goDemo}
             className="bg-emerald-500 text-white px-10 py-4 rounded-xl font-semibold text-base hover:bg-emerald-400 transition-colors inline-flex items-center gap-2">
             Create Free Account <ArrowRight size={17} />
           </button>
@@ -239,10 +264,10 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 bg-[#0A2540] rounded-md flex items-center justify-center">
+              <div className="w-7 h-7 bg-[#1B263B] rounded-md flex items-center justify-center">
                 <span className="text-white font-bold text-xs font-outfit">S</span>
               </div>
-              <span className="font-outfit font-semibold text-[#0A2540]">SimuTrade</span>
+              <span className="font-outfit font-semibold text-[#1B263B]">SimuTrade</span>
               <span className="text-slate-300 text-sm">·</span>
               <span className="text-xs text-slate-400">Not affiliated with any real trading platform</span>
             </div>

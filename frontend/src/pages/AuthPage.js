@@ -37,7 +37,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-white flex font-inter">
-      <div className="hidden lg:flex lg:w-5/12 bg-[#0A2540] flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-5/12 bg-[#1B263B] flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20" style={{
           backgroundImage: `url('https://static.prod-images.emergentagent.com/jobs/665453e7-75d6-45f5-8709-92527a0aed60/images/8416bbb983af3d725369b77c67c3ea95cf1e6b2f4308940c69041dbfbb456aec.png')`,
           backgroundSize: "cover", backgroundPosition: "center",
@@ -71,17 +71,17 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-[#F8F9FA]">
+      <div className="flex-1 flex items-center justify-center p-8 bg-[#F5F5F0]">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="w-full max-w-md">
           <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#0A2540] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#1B263B] rounded-lg flex items-center justify-center">
               <span className="text-white font-outfit font-bold text-sm">S</span>
             </div>
-            <span className="font-outfit text-lg font-semibold text-[#0A2540]">SimuTrade</span>
+            <span className="font-outfit text-lg font-semibold text-[#1B263B]">SimuTrade</span>
           </Link>
 
           <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-card">
-            <h1 className="font-outfit text-2xl font-semibold text-[#0A2540] mb-1">
+            <h1 className="font-outfit text-2xl font-semibold text-[#1B263B] mb-1">
               {tab === "login" ? "Welcome back" : "Create your account"}
             </h1>
             <p className="text-slate-500 text-sm mb-7">
@@ -92,7 +92,7 @@ export default function AuthPage() {
               {["login", "register"].map((t) => (
                 <button key={t} onClick={() => { setTab(t); setError(""); }} data-testid={`auth-tab-${t}`}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                    tab === t ? "bg-white text-[#0A2540] shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    tab === t ? "bg-white text-[#1B263B] shadow-sm" : "text-slate-400 hover:text-slate-600"
                   }`}>
                   {t === "login" ? "Sign In" : "Register"}
                 </button>
@@ -120,7 +120,7 @@ export default function AuthPage() {
                       <User size={15} strokeWidth={1.5} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input type="text" value={form.name} onChange={update("name")} placeholder="Alex Johnson"
                         required={tab === "register"} data-testid="register-name-input"
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
                     </div>
                   </motion.div>
                 )}
@@ -132,7 +132,7 @@ export default function AuthPage() {
                   <Mail size={15} strokeWidth={1.5} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com"
                     required data-testid="auth-email-input"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
                 </div>
               </div>
 
@@ -142,7 +142,7 @@ export default function AuthPage() {
                   <Lock size={15} strokeWidth={1.5} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input type={showPw ? "text" : "password"} value={form.password} onChange={update("password")}
                     placeholder="Min. 6 characters" required minLength={6} data-testid="auth-password-input"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
                   <button type="button" onClick={() => setShowPw(!showPw)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                     {showPw ? <EyeOff size={15} strokeWidth={1.5} /> : <Eye size={15} strokeWidth={1.5} />}
@@ -157,7 +157,7 @@ export default function AuthPage() {
               )}
 
               <button type="submit" disabled={loading} data-testid="auth-submit-btn"
-                className="w-full bg-[#0A2540] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#051A2E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                className="w-full bg-[#1B263B] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#051A2E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
                 {loading ? "Please wait..." : tab === "login" ? "Sign In" : "Create Account"}
               </button>
             </form>

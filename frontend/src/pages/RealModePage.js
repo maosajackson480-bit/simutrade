@@ -1,190 +1,352 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ExternalLink, AlertTriangle, CheckCircle, TrendingUp, Shield, Smartphone } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Link2, LogOut, AlertTriangle, CheckCircle, ExternalLink, Loader2, Shield,
+  TrendingUp, TrendingDown, X,
+} from "lucide-react";
 import Layout from "../components/Layout";
 import api from "../utils/api";
 import { useMode } from "../contexts/ModeContext";
 
-const BROKERS = [
-  {
-    id: "interactive-brokers",
-    name: "Interactive Brokers",
-    tagline: "Professional-grade platform",
-    initials: "IB",
-    color: "bg-red-600",
-    url: "https://www.interactivebrokers.com/?src=simutrade",
-    desc: "Industry leader for options and volatility derivatives. Used by institutional traders worldwide.",
-    features: ["Options & futures on VIX", "Low commissions", "Advanced analytics", "Global markets"],
-    level: "Advanced",
-  },
-  {
-    id: "tastytrade",
-    name: "Tastytrade",
-    tagline: "Built for derivatives traders",
-    initials: "TT",
-    color: "bg-orange-500",
-    url: "https://tastytrade.com/?ref=simutrade",
-    desc: "Designed specifically for options and futures traders. Excellent educational resources.",
-    features: ["VIX options trading", "Free education", "Simple pricing", "Mobile-first"],
-    level: "Intermediate",
-  },
-  {
-    id: "schwab",
-    name: "Charles Schwab",
-    tagline: "Full-service brokerage",
-    initials: "CS",
-    color: "bg-blue-700",
-    url: "https://www.schwab.com/?ref=simutrade",
-    desc: "One of the largest retail brokerages. Great for beginners with strong customer support.",
-    features: ["No account minimums", "thinkorswim platform", "Volatility ETFs", "Extensive research"],
-    level: "Beginner",
-  },
-  {
-    id: "etrade",
-    name: "E*TRADE",
-    tagline: "Morgan Stanley platform",
-    initials: "ET",
-    color: "bg-purple-600",
-    url: "https://us.etrade.com/?ref=simutrade",
-    desc: "Full-featured platform backed by Morgan Stanley. Strong tools for options trading.",
-    features: ["Options on VIX ETFs", "Power E*TRADE platform", "Screeners", "Portfolio analysis"],
-    level: "Intermediate",
-  },
-  {
-    id: "webull",
-    name: "Webull",
-    tagline: "Commission-free trading",
-    initials: "WB",
-    color: "bg-teal-600",
-    url: "https://www.webull.com/?ref=simutrade",
-    desc: "Modern mobile-first platform with commission-free trading and strong charting tools.",
-    features: ["Commission-free", "Mobile app", "Extended hours", "Paper trading mode"],
-    level: "Beginner",
-  },
-  {
-    id: "robinhood",
-    name: "Robinhood",
-    tagline: "Simple mobile investing",
-    initials: "RH",
-    color: "bg-emerald-600",
-    url: "https://robinhood.com/?ref=simutrade",
-    desc: "Simple, beginner-friendly app. Options available with Robinhood Gold subscription.",
-    features: ["Simple interface", "No minimums", "Fractional shares", "Options trading"],
-    level: "Beginner",
-  },
-];
+function TokenModal({ open, onClose, onConnected }) {
+  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
 
-const levelColor = { Beginner: "bg-emerald-50 text-emerald-700", Intermediate: "bg-blue-50 text-blue-700", Advanced: "bg-purple-50 text-purple-700" };
-
-export default function RealModePage() {
-  const [tracked, setTracked] = useState({});
-  const { setMode } = useMode();
-
-  const handleClick = async (broker) => {
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true); setErr(null);
     try {
-      await api.post("/referral/track", { partner: broker.id, action: "click" });
-    } catch {}
-    setTracked((p) => ({ ...p, [broker.id]: true }));
-    window.open(broker.url, "_blank", "noopener,noreferrer");
+      const res = await api.post("/deriv/connect", { api_token: token.trim() });
+      onConnected(res.data);
+      setToken("");
+    } catch (e) {
+      setErr(e.response?.data?.detail || "Connection failed");
+    } finally { setLoading(false); }
   };
 
   return (
+    <AnimatePresence>
+      {open && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1B263B]/40 backdrop-blur-sm p-4"
+          onClick={onClose}>
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-dropdown w-full max-w-md overflow-hidden border border-[#E5E5DF]">
+            <div className="bg-[#1B263B] text-white px-6 py-5 flex items-center justify-between">
+              <div>
+                <p className="font-outfit text-lg font-medium">Connect Deriv</p>
+                <p className="text-xs text-[#778DA9] mt-0.5">Token-based · We never store your password</p>
+              </div>
+              <button onClick={onClose} className="text-[#778DA9] hover:text-white" data-testid="deriv-modal-close">
+                <X size={18} strokeWidth={1.8} />
+              </button>
+            </div>
+            <form onSubmit={submit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-widest text-[#778DA9] mb-2">
+                  Deriv API Token
+                </label>
+                <input
+                  type="password"
+                  autoFocus
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  placeholder="Paste your token…"
+                  data-testid="deriv-token-input"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[#E5E5DF] bg-white text-[#1B263B] text-sm font-mono focus:outline-none focus:border-[#1B263B] transition-colors"
+                  disabled={loading}
+                />
+                <p className="text-xs text-[#778DA9] mt-2 leading-relaxed">
+                  Get one from{" "}
+                  <a href="https://app.deriv.com/account/api-token" target="_blank" rel="noopener noreferrer"
+                    className="underline text-[#E07A5F] hover:text-[#D36649]">
+                    app.deriv.com/account/api-token
+                  </a>
+                  . Enable <span className="font-mono">read</span> + <span className="font-mono">trade</span> scopes.
+                </p>
+              </div>
+
+              {err && (
+                <div className="bg-[#F5E6E6] border border-[#9E2A2B]/30 rounded-xl px-3 py-2 flex items-start gap-2" data-testid="deriv-error">
+                  <AlertTriangle size={14} className="text-[#9E2A2B] shrink-0 mt-0.5" />
+                  <p className="text-xs text-[#9E2A2B]">{err}</p>
+                </div>
+              )}
+
+              <button type="submit" disabled={loading || !token.trim()}
+                data-testid="deriv-connect-submit"
+                className="w-full flex items-center justify-center gap-2 bg-[#E07A5F] text-white py-3 rounded-xl text-sm font-medium hover:bg-[#D36649] active:scale-[0.99] transition-all disabled:opacity-50">
+                {loading ? <><Loader2 size={15} className="animate-spin" /> Verifying…</> : <>Connect Account</>}
+              </button>
+
+              <p className="text-[11px] text-[#778DA9] leading-relaxed">
+                Tokens are encrypted at rest. Real trades are executed by Deriv — SimuTrade does not hold funds or process transactions.
+              </p>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function BuyForm({ account, onTrade, symbols }) {
+  const [symbol, setSymbol] = useState("R_100");
+  const [contractType, setContractType] = useState("CALL");
+  const [amount, setAmount] = useState("1");
+  const [duration, setDuration] = useState("60");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true); setMsg(null);
+    try {
+      const r = await api.post("/deriv/buy", {
+        symbol,
+        contract_type: contractType,
+        amount: parseFloat(amount),
+        duration: parseInt(duration, 10),
+        duration_unit: "s",
+      });
+      setMsg({ ok: true, text: `Contract ${r.data.contract_id} — payout ${r.data.payout} ${account.currency}` });
+      onTrade();
+    } catch (e) {
+      setMsg({ ok: false, text: e.response?.data?.detail || "Trade failed" });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4" data-testid="deriv-buy-form">
+      {msg && (
+        <div className={`rounded-xl px-3 py-2 text-xs ${msg.ok ? "bg-[#EAF0E4] border border-[#426B1F]/30 text-[#426B1F]" : "bg-[#F5E6E6] border border-[#9E2A2B]/30 text-[#9E2A2B]"}`}>
+          {msg.text}
+        </div>
+      )}
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-widest text-[#778DA9] mb-2">Symbol</label>
+        <select value={symbol} onChange={(e) => setSymbol(e.target.value)} data-testid="deriv-symbol-select"
+          className="w-full px-4 py-3 rounded-xl border-2 border-[#E5E5DF] bg-white text-[#1B263B] text-sm font-mono focus:outline-none focus:border-[#1B263B]">
+          {symbols.slice(0, 40).map((s) => (
+            <option key={s.symbol} value={s.symbol}>{s.display_name} · {s.submarket}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-widest text-[#778DA9] mb-2">Direction</label>
+        <div className="flex border-2 border-[#E5E5DF] rounded-xl overflow-hidden">
+          <button type="button" onClick={() => setContractType("CALL")} data-testid="deriv-call-btn"
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all ${contractType === "CALL" ? "bg-[#426B1F] text-white" : "bg-white text-[#415A77]"}`}>
+            <TrendingUp size={14} /> Rise (CALL)
+          </button>
+          <button type="button" onClick={() => setContractType("PUT")} data-testid="deriv-put-btn"
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all border-l-2 border-[#E5E5DF] ${contractType === "PUT" ? "bg-[#9E2A2B] text-white" : "bg-white text-[#415A77]"}`}>
+            <TrendingDown size={14} /> Fall (PUT)
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-widest text-[#778DA9] mb-2">Stake ({account.currency})</label>
+          <input type="number" min="1" step="0.5" value={amount} onChange={(e) => setAmount(e.target.value)}
+            data-testid="deriv-amount-input"
+            className="w-full px-4 py-3 rounded-xl border-2 border-[#E5E5DF] bg-white text-[#1B263B] text-sm font-mono focus:outline-none focus:border-[#1B263B]" />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-widest text-[#778DA9] mb-2">Duration (s)</label>
+          <input type="number" min="15" step="15" value={duration} onChange={(e) => setDuration(e.target.value)}
+            data-testid="deriv-duration-input"
+            className="w-full px-4 py-3 rounded-xl border-2 border-[#E5E5DF] bg-white text-[#1B263B] text-sm font-mono focus:outline-none focus:border-[#1B263B]" />
+        </div>
+      </div>
+      <button type="submit" disabled={busy} data-testid="deriv-buy-submit"
+        className={`w-full py-3 rounded-xl text-sm font-medium transition-all disabled:opacity-50 ${contractType === "CALL" ? "bg-[#426B1F] hover:bg-[#355818]" : "bg-[#9E2A2B] hover:bg-[#7A2122]"} text-white`}>
+        {busy ? "Placing…" : `Place ${contractType} · ${account.currency} ${amount}`}
+      </button>
+    </form>
+  );
+}
+
+export default function RealModePage() {
+  const [modal, setModal] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [symbols, setSymbols] = useState([]);
+  const [portfolio, setPortfolio] = useState({ open: [], history: [] });
+  const [loading, setLoading] = useState(true);
+  const { setMode } = useMode();
+
+  const refresh = async () => {
+    try {
+      const s = await api.get("/deriv/status");
+      setStatus(s.data);
+      if (s.data.connected) {
+        const [sy, pf] = await Promise.all([api.get("/deriv/symbols"), api.get("/deriv/portfolio")]);
+        setSymbols(sy.data);
+        setPortfolio(pf.data);
+      }
+    } catch (e) {
+      // API down or not connected → fallback Demo banner
+      setStatus({ connected: false, fallback: "Deriv API unavailable — using Demo Mode." });
+    } finally { setLoading(false); }
+  };
+  useEffect(() => { refresh(); }, []);
+
+  const disconnect = async () => {
+    await api.post("/deriv/disconnect");
+    setStatus({ connected: false });
+    setPortfolio({ open: [], history: [] });
+  };
+
+  if (loading) {
+    return <Layout><div className="flex items-center justify-center py-24"><Loader2 className="animate-spin text-[#778DA9]" /></div></Layout>;
+  }
+
+  const connected = status?.connected;
+
+  return (
     <Layout>
-      <div className="max-w-5xl mx-auto font-inter">
-        <div className="mb-8">
-          <h1 className="font-outfit text-3xl font-semibold text-[#0A2540] mb-1">Live Trading Partners</h1>
-          <p className="text-sm text-slate-400">Access real volatility markets via our verified broker partners.</p>
+      <div className="max-w-6xl mx-auto font-manrope">
+        {/* Page header */}
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-outfit text-3xl font-medium text-[#1B263B] mb-1">Real Trading</h1>
+            <p className="text-sm text-[#415A77]">
+              Execute real contracts via Deriv. SimuTrade does not hold your funds.
+            </p>
+          </div>
+          {connected ? (
+            <button onClick={disconnect} data-testid="deriv-disconnect"
+              className="flex items-center gap-2 bg-white border-2 border-[#E5E5DF] text-[#415A77] px-4 py-2 rounded-xl text-sm font-medium hover:border-[#9E2A2B] hover:text-[#9E2A2B] transition-colors">
+              <LogOut size={14} /> Disconnect
+            </button>
+          ) : (
+            <button onClick={() => setModal(true)} data-testid="deriv-connect-btn"
+              className="flex items-center gap-2 bg-[#E07A5F] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#D36649] active:scale-[0.99] transition-all">
+              <Link2 size={14} /> Connect Deriv
+            </button>
+          )}
         </div>
 
-        {/* Big disclaimer */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8 flex gap-4">
-          <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" strokeWidth={2} />
+        {/* Persistent compliance banner */}
+        <div className="bg-[#F9EAE6] border border-[#E07A5F]/30 text-[#1B263B] rounded-2xl p-5 mb-6 flex gap-4" data-testid="deriv-compliance-banner">
+          <AlertTriangle size={20} className="text-[#E07A5F] shrink-0 mt-0.5" strokeWidth={2} />
           <div>
-            <p className="font-semibold text-amber-800 text-sm mb-1">Important — Real Money Involved</p>
-            <p className="text-xs text-amber-700 leading-relaxed">
-              Real Mode connects you to <strong>third-party broker platforms</strong>. These involve <strong>real financial transactions</strong>.
-              SimuTrade does not execute trades, hold funds, or act as a financial intermediary.
-              All trading on partner platforms is subject to their terms, fees, and risks.
-              <strong> Only trade what you can afford to lose. </strong>
-              Consider switching back to <button onClick={() => setMode("demo")} className="underline font-semibold">Practice Mode</button> to learn first.
+            <p className="font-outfit font-medium text-sm mb-1">Real trading is executed via Deriv</p>
+            <p className="text-xs text-[#415A77] leading-relaxed">
+              SimuTrade is not a broker. We never hold, custody, or process real funds. All contracts execute on{" "}
+              <span className="font-semibold text-[#1B263B]">Deriv.com</span>, which is regulated and subject to their
+              terms. Only trade what you can afford to lose. Switch to{" "}
+              <button onClick={() => setMode("demo")} className="underline font-semibold text-[#1B263B] hover:text-[#E07A5F]">Practice Mode</button>
+              {" "}to learn risk-free.
             </p>
           </div>
         </div>
 
-        {/* How it works */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8 shadow-card">
-          <h2 className="font-outfit text-base font-semibold text-[#0A2540] mb-4">How Live Mode Works</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Shield, t: "1. Choose a Broker", d: "Select a partner platform that fits your experience level and needs." },
-              { icon: ExternalLink, t: "2. Open an Account", d: "Create your account directly on the broker's platform. SimuTrade never handles your money." },
-              { icon: TrendingUp, t: "3. Trade Volatility", d: "Use your knowledge from SimuTrade to trade real volatility products on the partner platform." },
-            ].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="flex gap-3">
-                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Icon size={16} strokeWidth={1.5} className="text-[#0A2540]" />
-                </div>
-                <div>
-                  <p className="font-semibold text-[#0A2540] text-sm mb-1">{t}</p>
-                  <p className="text-xs text-slate-500 leading-relaxed">{d}</p>
-                </div>
-              </div>
-            ))}
+        {/* Fallback notice */}
+        {!connected && status?.fallback && (
+          <div className="bg-[#FCF6DF] border border-[#E3B505]/30 rounded-xl px-4 py-3 mb-6 flex items-center gap-3" data-testid="deriv-fallback">
+            <AlertTriangle size={15} className="text-[#E3B505]" />
+            <p className="text-xs text-[#1B263B]">{status.fallback}</p>
           </div>
-        </div>
+        )}
 
-        {/* Broker grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {BROKERS.map((b, i) => (
-            <motion.div key={b.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className="bg-white border border-slate-200 rounded-xl p-6 shadow-card hover:shadow-card-hover transition-shadow card-hover">
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 ${b.color} rounded-xl flex items-center justify-center text-white font-outfit font-bold text-sm shrink-0`}>
-                  {b.initials}
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-outfit font-semibold text-[#0A2540] text-sm">{b.name}</h3>
-                  <p className="text-xs text-slate-400">{b.tagline}</p>
-                </div>
-                <span className={`ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${levelColor[b.level]}`}>{b.level}</span>
+        {/* Connected state */}
+        {connected ? (
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Account card */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-6 border border-[#E5E5DF] shadow-card">
+              <div className="flex items-center gap-2 mb-4">
+                <CheckCircle size={15} className="text-[#426B1F]" />
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#426B1F]">Connected</p>
               </div>
-
-              <p className="text-sm text-slate-500 leading-relaxed mb-4">{b.desc}</p>
-
-              <ul className="space-y-1.5 mb-5">
-                {b.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-xs text-slate-500">
-                    <CheckCircle size={12} className="text-emerald-500 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <button onClick={() => handleClick(b)} data-testid={`broker-open-${b.id}`}
-                className="w-full flex items-center justify-center gap-2 bg-[#0A2540] text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-[#051A2E] transition-colors">
-                {tracked[b.id] ? (
-                  <><CheckCircle size={14} /> Opened</>
-                ) : (
-                  <>Open Account <ExternalLink size={13} /></>
-                )}
-              </button>
-              <p className="text-center text-[10px] text-slate-400 mt-2">
-                External platform — SimuTrade earns referral fees
+              <p className="text-xs text-[#778DA9] mb-1">Account</p>
+              <p className="font-outfit text-lg font-medium text-[#1B263B] mb-4" data-testid="deriv-account-id">
+                {status.account_id}
+                <span className="ml-2 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#F5F5F0] text-[#778DA9] border border-[#E5E5DF]">
+                  {status.account_type}
+                </span>
               </p>
+              <p className="text-xs text-[#778DA9] mb-1">Balance</p>
+              <p className="font-mono text-3xl font-medium text-[#1B263B]" data-testid="deriv-balance">
+                {parseFloat(status.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                <span className="text-sm text-[#778DA9] ml-2">{status.currency}</span>
+              </p>
+              <p className="text-xs text-[#778DA9] mt-4">{status.email}</p>
             </motion.div>
-          ))}
-        </div>
 
-        {/* Footer disclaimer */}
-        <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5">
-          <p className="text-xs text-slate-500 leading-relaxed text-center">
-            <strong className="text-slate-700">Affiliate Disclosure:</strong> SimuTrade may earn a referral commission if you open an account with a partner broker.
-            This does not affect the quality of our recommendations. All brokers listed are regulated financial institutions.
-            SimuTrade is not a broker-dealer or financial advisor. This is not financial advice.
-            <strong className="text-slate-700"> Trading involves significant risk of loss.</strong>
-          </p>
-        </div>
+            {/* Order form */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+              className="bg-white rounded-2xl p-6 border border-[#E5E5DF] shadow-card lg:col-span-2">
+              <h2 className="font-outfit text-base font-medium text-[#1B263B] mb-5">Place Real Contract</h2>
+              {symbols.length > 0 ? (
+                <BuyForm account={status} symbols={symbols} onTrade={refresh} />
+              ) : (
+                <p className="text-sm text-[#778DA9]">Loading symbols…</p>
+              )}
+            </motion.div>
+
+            {/* Open contracts */}
+            <div className="lg:col-span-3 bg-white rounded-2xl border border-[#E5E5DF] shadow-card overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E5E5DF]">
+                <h2 className="font-outfit text-sm font-medium text-[#1B263B]">Open Contracts</h2>
+              </div>
+              {portfolio.open.length === 0 ? (
+                <p className="px-6 py-8 text-sm text-[#778DA9] text-center">No open contracts.</p>
+              ) : (
+                <div className="divide-y divide-[#E5E5DF]">
+                  {portfolio.open.map((c) => (
+                    <div key={c.contract_id} className="px-6 py-3.5 flex items-center justify-between hover:bg-[#F5F5F0]">
+                      <div>
+                        <p className="text-sm font-medium text-[#1B263B]">{c.symbol} · {c.contract_type}</p>
+                        <p className="text-xs text-[#778DA9] font-mono">ID {c.contract_id} · stake {c.buy_price}</p>
+                      </div>
+                      <button onClick={async () => { await api.post("/deriv/sell", { contract_id: c.contract_id, price: 0 }); refresh(); }}
+                        className="text-xs border border-[#E5E5DF] px-3 py-1.5 rounded-lg hover:border-[#9E2A2B] hover:text-[#9E2A2B] transition-colors">
+                        Sell
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Disconnected state */
+          <div className="bg-white border border-[#E5E5DF] rounded-2xl p-10 text-center shadow-card">
+            <div className="w-12 h-12 mx-auto bg-[#F9EAE6] rounded-2xl flex items-center justify-center mb-5">
+              <Link2 size={22} className="text-[#E07A5F]" strokeWidth={1.8} />
+            </div>
+            <h2 className="font-outfit text-xl font-medium text-[#1B263B] mb-2">Connect your Deriv account</h2>
+            <p className="text-sm text-[#415A77] max-w-md mx-auto mb-6 leading-relaxed">
+              Use a Deriv API token (you stay in control — we never see your password). Works with demo and real Deriv accounts.
+            </p>
+            <button onClick={() => setModal(true)} data-testid="deriv-connect-hero"
+              className="inline-flex items-center gap-2 bg-[#E07A5F] text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-[#D36649] active:scale-[0.99] transition-all">
+              <Link2 size={15} /> Connect Deriv
+            </button>
+
+            <div className="grid md:grid-cols-3 gap-6 mt-10 text-left">
+              {[
+                { icon: Shield, t: "Token-only auth", d: "We never see your Deriv password. Tokens are encrypted at rest and can be revoked at deriv.com any time." },
+                { icon: ExternalLink, t: "Executed on Deriv", d: "All real trades settle via Deriv's regulated infrastructure. We're only a UI layer." },
+                { icon: CheckCircle, t: "Fallback to Demo", d: "If the Deriv API is unreachable, you can always switch back to Practice Mode and keep learning." },
+              ].map(({ icon: Icon, t, d }) => (
+                <div key={t} className="bg-[#F5F5F0] rounded-xl p-4 border border-[#E5E5DF]">
+                  <Icon size={16} className="text-[#1B263B] mb-2" strokeWidth={1.8} />
+                  <p className="font-outfit text-sm font-medium text-[#1B263B] mb-1">{t}</p>
+                  <p className="text-xs text-[#415A77] leading-relaxed">{d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      <TokenModal open={modal} onClose={() => setModal(false)} onConnected={() => { setModal(false); refresh(); }} />
     </Layout>
   );
 }

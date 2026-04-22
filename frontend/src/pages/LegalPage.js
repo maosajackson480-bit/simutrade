@@ -108,9 +108,9 @@ export default function LegalPage({ page = "terms" }) {
   const doc = LEGAL[page] || LEGAL.terms;
 
   return (
-    <div className="min-h-screen bg-[#F7F5F0] font-manrope">
+    <div className="min-h-screen bg-[#F5F5F0] font-manrope">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[#F7F5F0]/90 backdrop-blur-xl border-b border-[#D1CDC3]/50 px-6 py-4 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-[#F5F5F0]/90 backdrop-blur-xl border-b border-[#D1CDC3]/50 px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-[#C05746] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm font-outfit">S</span>
@@ -118,10 +118,10 @@ export default function LegalPage({ page = "terms" }) {
           <span className="font-outfit text-xl font-semibold text-[#1A2421]">SimuTrade</span>
         </Link>
         <div className="flex gap-4">
-          <Link to="/terms" className={`text-sm transition-colors ${page === "terms" ? "text-[#1A2421] font-medium" : "text-[#4A5D54] hover:text-[#1A2421]"}`}>
+          <Link to="/terms" className={`text-sm transition-colors ${page === "terms" ? "text-[#1A2421] font-medium" : "text-[#415A77] hover:text-[#1A2421]"}`}>
             Terms
           </Link>
-          <Link to="/privacy" className={`text-sm transition-colors ${page === "privacy" ? "text-[#1A2421] font-medium" : "text-[#4A5D54] hover:text-[#1A2421]"}`}>
+          <Link to="/privacy" className={`text-sm transition-colors ${page === "privacy" ? "text-[#1A2421] font-medium" : "text-[#415A77] hover:text-[#1A2421]"}`}>
             Privacy
           </Link>
         </div>
@@ -143,7 +143,7 @@ export default function LegalPage({ page = "terms" }) {
             <div key={section.heading}>
               <h2 className="font-outfit text-xl font-semibold text-[#1A2421] mb-4">{section.heading}</h2>
               {section.body.split("\n\n").map((para, i) => (
-                <p key={i} className="text-[#4A5D54] leading-loose mb-4 whitespace-pre-line text-sm">{para}</p>
+                <p key={i} className="text-[#415A77] leading-loose mb-4 whitespace-pre-line text-sm">{para}</p>
               ))}
             </div>
           ))}
@@ -152,14 +152,14 @@ export default function LegalPage({ page = "terms" }) {
         <div className="mt-12 bg-[#C05746]/5 border border-[#C05746]/20 rounded-2xl p-6">
           <p className="text-sm text-[#C05746] font-medium mb-2">Important Reminder</p>
           <p className="text-xs text-[#7A8C83] leading-relaxed">
-            SimuTrade is an <strong className="text-[#4A5D54]">educational simulation platform only</strong>. All trading uses virtual currency with no real financial impact.
+            SimuTrade is an <strong className="text-[#415A77]">educational simulation platform only</strong>. All trading uses virtual currency with no real financial impact.
             Not financial advice. Not affiliated with any real trading platform.
           </p>
         </div>
 
         <div className="mt-8 flex gap-4">
-          <Link to="/" className="text-sm text-[#4A5D54] hover:text-[#1A2421] transition-colors">← Back to Home</Link>
-          <Link to="/auth" className="text-sm text-[#2C4C3B] hover:text-[#1A2421] transition-colors font-medium">
+          <Link to="/" className="text-sm text-[#415A77] hover:text-[#1A2421] transition-colors">← Back to Home</Link>
+          <Link to="/auth" className="text-sm text-[#426B1F] hover:text-[#1A2421] transition-colors font-medium">
             Create Free Account →
           </Link>
         </div>

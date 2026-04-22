@@ -20,7 +20,7 @@ export default function SettingsPage() {
     <Layout>
       <div className="max-w-2xl mx-auto font-inter">
         <div className="mb-8">
-          <h1 className="font-outfit text-3xl font-semibold text-[#0A2540] mb-1">Settings</h1>
+          <h1 className="font-outfit text-3xl font-semibold text-[#1B263B] mb-1">Settings</h1>
           <p className="text-sm text-slate-400">Manage your SimuTrade account and preferences.</p>
         </div>
 
@@ -35,7 +35,7 @@ export default function SettingsPage() {
           className="bg-white border border-slate-200 rounded-xl p-6 mb-5 shadow-card">
           <div className="flex items-center gap-2.5 mb-5">
             <User size={18} strokeWidth={1.5} className="text-slate-500" />
-            <h2 className="font-outfit text-base font-semibold text-[#0A2540]">Profile</h2>
+            <h2 className="font-outfit text-base font-semibold text-[#1B263B]">Profile</h2>
           </div>
           <div className="space-y-4">
             <div>
@@ -46,7 +46,7 @@ export default function SettingsPage() {
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Name</label>
               <input type="text" defaultValue={user?.name || ""} data-testid="settings-name-input"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-[#0A2540] text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-[#1B263B] text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
             </div>
             <div className="flex gap-4 text-xs text-slate-400 pt-1">
               <span>Auth: <strong className="text-slate-600">{user?.auth_type}</strong></span>
@@ -54,7 +54,7 @@ export default function SettingsPage() {
               <span>Risk: <strong className="text-slate-600">{user?.risk_tolerance || "Not set"}</strong></span>
             </div>
             <button onClick={handleSave} disabled={saving} data-testid="settings-save-btn"
-              className="bg-[#0A2540] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#051A2E] transition-colors disabled:opacity-50">
+              className="bg-[#1B263B] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#051A2E] transition-colors disabled:opacity-50">
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
@@ -65,7 +65,7 @@ export default function SettingsPage() {
           className="bg-white border border-slate-200 rounded-xl p-6 mb-5 shadow-card">
           <div className="flex items-center gap-2.5 mb-5">
             <FlaskConical size={18} strokeWidth={1.5} className="text-slate-500" />
-            <h2 className="font-outfit text-base font-semibold text-[#0A2540]">Trading Mode</h2>
+            <h2 className="font-outfit text-base font-semibold text-[#1B263B]">Trading Mode</h2>
           </div>
           <div className="space-y-3">
             {[
@@ -73,16 +73,16 @@ export default function SettingsPage() {
               { v: "real", l: "Live Mode (External)", d: "Access real broker partners. SimuTrade does not execute real trades.", icon: ExternalLink, active: !isDemo },
             ].map((opt) => (
               <button key={opt.v} onClick={() => setMode(opt.v)} data-testid={`mode-option-${opt.v}`}
-                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${opt.active ? "border-[#0A2540] bg-slate-50" : "border-slate-200 hover:border-slate-300"}`}>
+                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${opt.active ? "border-[#1B263B] bg-slate-50" : "border-slate-200 hover:border-slate-300"}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <opt.icon size={16} strokeWidth={1.5} className={opt.active ? "text-[#0A2540]" : "text-slate-400"} />
+                    <opt.icon size={16} strokeWidth={1.5} className={opt.active ? "text-[#1B263B]" : "text-slate-400"} />
                     <div>
-                      <p className={`text-sm font-semibold ${opt.active ? "text-[#0A2540]" : "text-slate-600"}`}>{opt.l}</p>
+                      <p className={`text-sm font-semibold ${opt.active ? "text-[#1B263B]" : "text-slate-600"}`}>{opt.l}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{opt.d}</p>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 ${opt.active ? "bg-[#0A2540] border-[#0A2540]" : "border-slate-300"}`} />
+                  <div className={`w-4 h-4 rounded-full border-2 ${opt.active ? "bg-[#1B263B] border-[#1B263B]" : "border-slate-300"}`} />
                 </div>
               </button>
             ))}
@@ -94,11 +94,11 @@ export default function SettingsPage() {
           className="bg-white border border-slate-200 rounded-xl p-6 mb-5 shadow-card">
           <div className="flex items-center gap-2.5 mb-5">
             <Lock size={18} strokeWidth={1.5} className="text-slate-500" />
-            <h2 className="font-outfit text-base font-semibold text-[#0A2540]">Virtual Account</h2>
+            <h2 className="font-outfit text-base font-semibold text-[#1B263B]">Virtual Account</h2>
           </div>
           <div className="flex items-center justify-between py-3 border-b border-slate-100">
             <div>
-              <p className="text-sm font-medium text-[#0A2540]">Virtual Balance</p>
+              <p className="text-sm font-medium text-[#1B263B]">Virtual Balance</p>
               <p className="text-xs text-slate-400">Current simulation balance</p>
             </div>
             <span className="font-mono font-semibold text-emerald-600 text-base" data-testid="settings-balance">
@@ -107,7 +107,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between py-3">
             <div>
-              <p className="text-sm font-medium text-[#0A2540]">Starting Balance</p>
+              <p className="text-sm font-medium text-[#1B263B]">Starting Balance</p>
               <p className="text-xs text-slate-400">Original virtual allocation</p>
             </div>
             <span className="font-mono text-slate-500 text-sm">$10,000.00</span>

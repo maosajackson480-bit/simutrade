@@ -102,12 +102,12 @@ export default function LearnPage() {
       <div className="min-h-screen bg-white font-inter">
         <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#0A2540] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#1B263B] rounded-lg flex items-center justify-center">
               <span className="text-white font-outfit font-bold text-sm">S</span>
             </div>
-            <span className="font-outfit text-lg font-semibold text-[#0A2540]">SimuTrade</span>
+            <span className="font-outfit text-lg font-semibold text-[#1B263B]">SimuTrade</span>
           </Link>
-          <Link to="/auth" className="bg-[#0A2540] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors">
+          <Link to="/auth" className="bg-[#1B263B] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#051A2E] transition-colors">
             Start Free
           </Link>
         </nav>
@@ -120,7 +120,7 @@ export default function LearnPage() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-10">
           <span className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-3 block">Learning Center</span>
-          <h1 className="font-outfit text-4xl font-semibold text-[#0A2540] mb-3">Master Volatility Trading</h1>
+          <h1 className="font-outfit text-4xl font-semibold text-[#1B263B] mb-3">Master Volatility Trading</h1>
           <p className="text-slate-500 max-w-2xl text-base leading-relaxed">
             Beginner-friendly guides on volatility indices, trading strategies, and risk management.
           </p>
@@ -130,7 +130,7 @@ export default function LearnPage() {
           {[{ k: "articles", l: "Articles", i: BookOpen }, { k: "glossary", l: "Glossary", i: Search }].map(({ k, l, i: Icon }) => (
             <button key={k} onClick={() => { setSection(k); setArticle(null); }} data-testid={`learn-tab-${k}`}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                section === k ? "bg-[#0A2540] text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+                section === k ? "bg-[#1B263B] text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
               }`}>
               <Icon size={15} strokeWidth={1.5} />{l}
             </button>
@@ -144,12 +144,12 @@ export default function LearnPage() {
               ← Back to articles
             </button>
             <span className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2 block">{article.category}</span>
-            <h2 className="font-outfit text-3xl font-semibold text-[#0A2540] mb-2">{article.title}</h2>
+            <h2 className="font-outfit text-3xl font-semibold text-[#1B263B] mb-2">{article.title}</h2>
             <p className="text-sm text-slate-400 mb-8">{article.readTime} read</p>
             <div className="space-y-8">
               {article.content.map((s) => (
                 <div key={s.heading}>
-                  <h3 className="font-outfit text-xl font-semibold text-[#0A2540] mb-3">{s.heading}</h3>
+                  <h3 className="font-outfit text-xl font-semibold text-[#1B263B] mb-3">{s.heading}</h3>
                   {s.body.split("\n\n").map((para, i) => (
                     <p key={i} className="text-slate-500 leading-loose mb-4 whitespace-pre-line text-sm">{para}</p>
                   ))}
@@ -158,7 +158,7 @@ export default function LearnPage() {
             </div>
             {!user && (
               <div className="mt-10 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center">
-                <p className="font-outfit text-lg font-semibold text-[#0A2540] mb-2">Ready to practice?</p>
+                <p className="font-outfit text-lg font-semibold text-[#1B263B] mb-2">Ready to practice?</p>
                 <p className="text-sm text-slate-500 mb-4">Apply what you've learned with $10,000 virtual currency.</p>
                 <Link to="/auth" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
                   Start Simulating Free <ArrowRight size={15} />
@@ -175,11 +175,11 @@ export default function LearnPage() {
                 onClick={() => setArticle(a)} data-testid={`article-card-${a.id}`}
                 className="bg-white border border-slate-200 rounded-xl p-6 cursor-pointer card-hover hover:border-slate-300 transition-all">
                 <span className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3 block">{a.category}</span>
-                <h3 className="font-outfit text-lg font-semibold text-[#0A2540] mb-2">{a.title}</h3>
+                <h3 className="font-outfit text-lg font-semibold text-[#1B263B] mb-2">{a.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed mb-4">{a.desc}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-400">{a.readTime} read</span>
-                  <span className="text-sm text-[#0A2540] font-semibold flex items-center gap-1">Read <ArrowRight size={13} /></span>
+                  <span className="text-sm text-[#1B263B] font-semibold flex items-center gap-1">Read <ArrowRight size={13} /></span>
                 </div>
               </motion.div>
             ))}
@@ -192,12 +192,12 @@ export default function LearnPage() {
               <Search size={15} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input type="text" placeholder="Search terms..." value={search} onChange={(e) => setSearch(e.target.value)}
                 data-testid="glossary-search"
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
             </div>
             <div className="space-y-2">
               {filtered.map((g) => (
                 <div key={g.term} className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
-                  <span className="font-mono text-xs font-semibold text-[#0A2540] bg-slate-100 rounded-md px-2 py-0.5 mr-3">{g.term}</span>
+                  <span className="font-mono text-xs font-semibold text-[#1B263B] bg-slate-100 rounded-md px-2 py-0.5 mr-3">{g.term}</span>
                   <span className="text-sm text-slate-500">{g.def}</span>
                 </div>
               ))}

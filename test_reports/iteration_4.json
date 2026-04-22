@@ -1,0 +1,46 @@
+{
+  "summary": "Iteration 4 full-stack E2E for Phase 4 (Guest Demo + Deriv integration + Bone/Navy/Coral redesign). Backend pytest suite expanded from 19 → 31 tests — ALL 31 PASS (100%). New tests cover: guest auth (creation, role/balance/onboarding_complete flags, JWT works for /portfolio/summary, /market/quotes, /trading/open), Deriv /status without connect, /connect invalid-token (400 'The token is invalid.'), /connect short-token 400, /symbols /portfolio /buy /sell all require connection (400 'Deriv account not connected'), Deriv endpoints require auth (401). Frontend E2E via Playwright: Landing page renders new Bone (rgb(245,245,240)) + Navy + Coral palette with Outfit/Manrope/JetBrains Mono fonts. Headline 'Master Volatility. Without the Risk.' — coral accent rgb(224,122,95) on 'Without the Risk' confirmed. Three hero CTAs (hero-cta-demo coral, hero-cta-real navy, hero-cta-learn outlined) present and wired. Start Demo Trading → POST /api/auth/guest → JWT stored in localStorage → /dashboard in <3s with 'Good to see you, Guest' greeting, guest-banner ('You're in Guest Mode — Create a free account to keep your progress.'), coral guest-upgrade-btn ('Save My Account'). Unauth Start Real Trading → /auth?next=/brokers. Learning Center → /learn. /brokers page shows big 'Connect your Deriv account' hero (deriv-connect-hero), 3-card explainer (Token-only auth, Executed on Deriv, Fallback to Demo), deriv-compliance-banner ('Real trading is executed via Deriv. SimuTrade is not a broker...'). Connect modal has deriv-token-input, deriv-connect-submit, deriv-modal-close, and link to app.deriv.com/account/api-token. Submitting invalid token shows deriv-error inline with backend message 'The token is invalid.' AI Assistant FAB (data-testid='ai-assistant-open') renders in Demo mode and hides in Live mode as expected. Guest logout clears token and redirects to /auth. TradingPage loads with live VIX data and trade-submit-button present. All 19 prior tests still pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "WS /api/deriv/ticks/{symbol}", "issue": "Invalid JWT or missing deriv account causes ingress to respond with HTTP 403 instead of WebSocket close code 1008. Starlette sends 403 when ws.close() is called BEFORE ws.accept(). For spec-compliant 1008 close, call `await ws.accept()` first, then `await ws.close(code=1008)`. Behavior is still secure (connection rejected), but clients expecting a clean close-frame with code 1008 will instead see a WebSocket handshake failure."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "LandingPage (bottom)", "issues": ["'Start Simulating Now' and 'Create Free Account' CTAs at the bottom are still green (legacy brand color) — inconsistent with the new coral/navy primary buttons in the hero section. Consider updating to coral or navy."]},
+      {"screen": "AuthPage (/auth)", "issues": ["Left panel still uses old navy-gradient with green accent on 'Risk-free.' text — not migrated to new Bone/Navy/Coral palette. Heading 'Learn volatility trading. Risk-free.' uses green rather than coral."]},
+      {"screen": "TradingPage (/trading)", "issues": ["Direction selector 'Long' pill and 'Open LONG Position' CTA are bright green — not aligned with the new Navy/Coral system used elsewhere. Inconsistent brand experience vs. LandingPage and DashboardPage."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_simutrade.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional polish: align remaining green CTAs on LandingPage bottom-section, AuthPage left panel, and TradingPage (Long pill + Open Position button) to the new Bone/Navy/Coral palette for a consistent brand.",
+    "Optional: Make /api/deriv/ticks WS accept() then close(code=1008) so clients observe the documented 1008 close code instead of a 403 handshake rejection."
+  ],
+  "critical_code_review_comments": [
+    "routes/auth.py POST /guest: no rate-limit or abuse protection. A bot can create unlimited guest users, each inserting a Mongo document. Add per-IP rate limit (e.g. 5/min) and/or TTL-index on guest users (auto-delete after 7 days) to prevent DB bloat.",
+    "routes/auth.py /guest: email collision is technically possible with uuid.uuid4().hex[:12] (1 in 2^48, negligible but) — consider handling DuplicateKeyError gracefully. Also guest users are never cleaned up; recommend a TTL index on created_at for role='guest'.",
+    "routes/deriv.py WS /ticks: JWT is passed as query parameter — visible in server access logs and browser history. Prefer Sec-WebSocket-Protocol subprotocol header or short-lived signed ticket (POST to get a one-time ticket, then pass it in WS).",
+    "routes/deriv.py /connect and /status: each call opens and closes a fresh WebSocket to Deriv. For heavy use (status poll, symbols, portfolio, buy in sequence) this is 4 round-trips. Consider connection pooling or batching related calls in a single context manager.",
+    "core/deriv_client.py._call: uses payload req_id match but will drop any out-of-order responses silently — if two pending calls exist (not currently, but if parallelized) the sequencing relies on strict req_id matching — OK for now but add lock or per-request future map if moved to concurrent usage.",
+    "core/crypto.py: module-level Fernet instantiation means DERIV_ENC_KEY rotation requires a restart; acceptable but document it.",
+    "FE (AiAssistant): data-testid is 'ai-assistant-open' — consistent with demo/live visibility toggle. Prior iteration used 'simubot-fab' in docs; update internal docs for consistency.",
+    "FE: TradingPage Long/Short pill still uses emerald-500 style; palette tokens for 'long' (forest) and 'short' (coral) exist per new design — not yet applied."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_simutrade.py"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@simutrade.com / SimuTrade2024! (admin), test@simutrade.com / Test1234! (user), test_auto@simutrade.com / Test1234! (pytest user), Guest: created on demand via POST /api/auth/guest (no credentials)",
+  "seed_data_creation": "Added 12 new pytest tests (4 guest + 8 Deriv). Pytest run created ~3 new guest users (TTL-less — minor DB noise). Admin account used a -$19.51 VIX trade earlier and has a small balance drift (virtual $9,980.49). No real-money impact — simulator only.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 31 backend tests green. Export REACT_APP_BACKEND_URL before pytest. Frontend testids validated: hero-cta-demo, hero-cta-real, hero-cta-learn, guest-banner, guest-upgrade-btn, deriv-connect-hero, deriv-compliance-banner, deriv-fallback (only shown when Deriv unreachable — could not trigger), deriv-token-input, deriv-connect-submit, deriv-modal-close, deriv-error, ai-assistant-open, trade-submit-button, trade-rationale. Deriv WS returns HTTP 403 instead of close 1008 — spec deviation, security OK. Only cosmetic palette-migration work remains (3 screens still have legacy green accents).",
+  "rca of the issue": "N/A — all Phase 4 functionality works end-to-end. Minor design inconsistencies documented; no functional bugs."
+}

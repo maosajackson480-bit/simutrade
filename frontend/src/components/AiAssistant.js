@@ -59,7 +59,7 @@ export default function AiAssistant() {
       <button
         onClick={() => setOpen(true)}
         data-testid="ai-assistant-open"
-        className={`fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-[#0A2540] text-white shadow-xl flex items-center justify-center hover:bg-[#123a5e] transition-all ${
+        className={`fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-[#1B263B] text-white shadow-xl flex items-center justify-center hover:bg-[#2B3A55] transition-all ${
           open ? "scale-0 pointer-events-none" : "scale-100"
         }`}
         aria-label="Open AI assistant"
@@ -78,7 +78,7 @@ export default function AiAssistant() {
             data-testid="ai-assistant-panel"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-[#0A2540] text-white">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-[#1B263B] text-white">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
                   <Sparkles size={15} strokeWidth={2.2} />
@@ -114,7 +114,7 @@ export default function AiAssistant() {
                   <div
                     className={`max-w-[85%] text-sm leading-relaxed px-3.5 py-2.5 rounded-2xl ${
                       m.role === "user"
-                        ? "bg-[#0A2540] text-white rounded-br-sm"
+                        ? "bg-[#1B263B] text-white rounded-br-sm"
                         : "bg-white text-slate-800 border border-slate-200 rounded-bl-sm"
                     }`}
                   >
@@ -158,14 +158,14 @@ export default function AiAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about volatility…"
-                className="flex-1 text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A2540]/20 focus:border-[#0A2540] font-inter"
+                className="flex-1 text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1B263B]/20 focus:border-[#1B263B] font-inter"
                 data-testid="ai-input"
                 disabled={sending}
               />
               <button
                 type="submit"
                 disabled={sending || !input.trim()}
-                className="h-9 w-9 flex items-center justify-center bg-[#0A2540] text-white rounded-lg hover:bg-[#123a5e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-9 w-9 flex items-center justify-center bg-[#1B263B] text-white rounded-lg hover:bg-[#2B3A55] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 data-testid="ai-send"
                 aria-label="Send"
               >

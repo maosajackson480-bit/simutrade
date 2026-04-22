@@ -6,25 +6,28 @@ module.exports = {
     extend: {
       fontFamily: {
         outfit: ["Outfit", "sans-serif"],
-        inter: ["Inter", "sans-serif"],
+        manrope: ["Manrope", "sans-serif"],
+        inter: ["Manrope", "sans-serif"], // legacy alias
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
-        // SimuTrade Fintech palette
-        "st-bg": "#FFFFFF",
-        "st-muted": "#F8F9FA",
-        "st-sidebar": "#F4F5F7",
-        "st-navy": "#0A2540",
-        "st-navy-hover": "#051A2E",
-        "st-emerald": "#10B981",
-        "st-emerald-hover": "#059669",
-        "st-border": "#E2E8F0",
-        "st-border-light": "#F1F5F9",
-        "st-text": "#0F172A",
-        "st-text-2": "#64748B",
-        "st-text-3": "#94A3B8",
-        "st-danger": "#EF4444",
-        "st-warning": "#F59E0B",
+        // SimuTrade — Bone/Navy/Coral palette (2026 redesign)
+        bone: "#F5F5F0",
+        "bone-2": "#F0F0EB",
+        navy: "#1B263B",
+        "navy-2": "#415A77",
+        "navy-3": "#778DA9",
+        coral: "#E07A5F",
+        "coral-hover": "#D36649",
+        "coral-light": "#F9EAE6",
+        forest: "#426B1F",
+        "forest-light": "#EAF0E4",
+        wine: "#9E2A2B",
+        "wine-light": "#F5E6E6",
+        sand: "#E3B505",
+        "sand-light": "#FCF6DF",
+        "line-soft": "#E5E5DF",
+
         // shadcn tokens
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -52,9 +55,10 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
-        "card-hover": "0 4px 12px rgba(10,37,64,0.08)",
-        "button": "0 1px 2px rgba(10,37,64,0.08)",
+        card: "0 8px 30px rgba(27,38,59,0.04)",
+        "card-hover": "0 20px 40px rgba(27,38,59,0.08)",
+        dropdown: "0 10px 40px rgba(27,38,59,0.12)",
+        button: "0 1px 2px rgba(27,38,59,0.06)",
       },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },

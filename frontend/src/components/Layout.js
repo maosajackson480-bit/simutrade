@@ -37,10 +37,10 @@ export default function Layout({ children }) {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-200">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-[#0A2540] rounded-lg flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 bg-[#1B263B] rounded-lg flex items-center justify-center shrink-0">
             <span className="text-white font-outfit font-bold text-sm">S</span>
           </div>
-          <span className="font-outfit text-lg font-semibold text-[#0A2540]">SimuTrade</span>
+          <span className="font-outfit text-lg font-semibold text-[#1B263B]">SimuTrade</span>
         </div>
       </div>
 
@@ -52,7 +52,7 @@ export default function Layout({ children }) {
             onClick={() => setMode("demo")}
             data-testid="mode-demo-btn"
             className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
-              isDemo ? "bg-white text-[#0A2540] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              isDemo ? "bg-white text-[#1B263B] shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <FlaskConical size={12} strokeWidth={2} />
@@ -83,7 +83,7 @@ export default function Layout({ children }) {
               data-testid={`nav-${label.toLowerCase()}`}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 active
-                  ? "bg-[#0A2540] text-white"
+                  ? "bg-[#1B263B] text-white"
                   : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
               }`}
             >
@@ -97,7 +97,7 @@ export default function Layout({ children }) {
       {/* User */}
       <div className="px-3 py-4 border-t border-slate-200">
         <div className="flex items-center gap-3 px-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-[#0A2540] flex items-center justify-center text-white text-xs font-semibold font-outfit shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[#1B263B] flex items-center justify-center text-white text-xs font-semibold font-outfit shrink-0">
             {user?.name?.[0]?.toUpperCase() || "U"}
           </div>
           <div className="min-w-0">
@@ -117,9 +117,9 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className="flex min-h-screen bg-[#F8F9FA]">
+    <div className="flex min-h-screen bg-[#F5F5F0]">
       {/* Desktop sidebar */}
-      <aside className="w-60 bg-[#F4F5F7] border-r border-slate-200 fixed h-full z-30 hidden md:flex flex-col">
+      <aside className="w-60 bg-[#FFFFFF] border-r border-slate-200 fixed h-full z-30 hidden md:flex flex-col">
         <SidebarContent />
       </aside>
 
@@ -127,7 +127,7 @@ export default function Layout({ children }) {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="relative w-60 bg-[#F4F5F7] border-r border-slate-200 flex flex-col h-full z-50">
+          <aside className="relative w-60 bg-[#FFFFFF] border-r border-slate-200 flex flex-col h-full z-50">
             <SidebarContent />
           </aside>
         </div>
@@ -170,7 +170,7 @@ export default function Layout({ children }) {
             {isDemo && (
               <div className="hidden sm:block text-sm text-slate-500 font-inter">
                 Virtual:{" "}
-                <span className="font-semibold text-[#0A2540] font-outfit" data-testid="header-balance">
+                <span className="font-semibold text-[#1B263B] font-outfit" data-testid="header-balance">
                   ${(user?.balance ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </span>
               </div>

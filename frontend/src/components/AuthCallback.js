@@ -29,10 +29,10 @@ export default function AuthCallback() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F7F5F0]">
+    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F0]">
       <div className="text-center">
-        <div className="w-10 h-10 border-2 border-[#2C4C3B] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="font-manrope text-[#4A5D54]">Completing sign in...</p>
+        <div className="w-10 h-10 border-2 border-[#426B1F] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="font-manrope text-[#415A77]">Completing sign in...</p>
       </div>
     </div>
   );

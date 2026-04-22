@@ -12,7 +12,7 @@ function ChartTip({ active, payload, label }) {
   return (
     <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
       <p className="text-xs text-slate-400 mb-0.5">{label}</p>
-      <p className="font-outfit font-semibold text-[#0A2540] text-sm">{payload[0]?.value?.toFixed(2)}</p>
+      <p className="font-outfit font-semibold text-[#1B263B] text-sm">{payload[0]?.value?.toFixed(2)}</p>
     </div>
   );
 }
@@ -91,7 +91,7 @@ export default function TradingPage() {
     <Layout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="font-outfit text-3xl font-semibold text-[#0A2540] mb-1">Trading Terminal</h1>
+          <h1 className="font-outfit text-3xl font-semibold text-[#1B263B] mb-1">Trading Terminal</h1>
           <p className="text-sm text-slate-400 font-inter">Practice with live CBOE volatility data — virtual currency only.</p>
         </div>
 
@@ -115,7 +115,7 @@ export default function TradingPage() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mb-4 bg-[#0A2540] rounded-xl px-5 py-4 text-white"
+              className="mb-4 bg-[#1B263B] rounded-xl px-5 py-4 text-white"
               data-testid="trade-rationale"
             >
               <div className="flex items-start gap-3">
@@ -144,7 +144,7 @@ export default function TradingPage() {
           {indices.map((q) => (
             <button key={q.symbol} onClick={() => setSelected(q.symbol)} data-testid={`index-select-${q.display}`}
               className={`shrink-0 px-4 py-3 rounded-xl border text-left transition-all duration-150 ${
-                selected === q.symbol ? "bg-[#0A2540] border-[#0A2540] text-white" : "bg-white border-slate-200 text-[#0A2540] hover:border-slate-300 hover:bg-[#F8F9FA]"
+                selected === q.symbol ? "bg-[#1B263B] border-[#1B263B] text-white" : "bg-white border-slate-200 text-[#1B263B] hover:border-slate-300 hover:bg-[#F5F5F0]"
               }`}>
               <div className="font-outfit text-sm font-semibold">{q.display}</div>
               <div className={`font-mono text-xs mt-0.5 ${selected === q.symbol ? "text-white/60" : q.change_pct >= 0 ? "text-emerald-600" : "text-red-500"}`}>
@@ -160,7 +160,7 @@ export default function TradingPage() {
               <div className="flex items-start justify-between mb-5">
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <h2 className="font-outfit text-xl font-semibold text-[#0A2540]">{currentQuote.display || selected.replace("^", "")}</h2>
+                    <h2 className="font-outfit text-xl font-semibold text-[#1B263B]">{currentQuote.display || selected.replace("^", "")}</h2>
                     <span className={`font-mono text-xl font-semibold ${(currentQuote.change_pct ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                       {price > 0 ? price.toFixed(2) : "—"}
                     </span>
@@ -173,7 +173,7 @@ export default function TradingPage() {
               </div>
               <div className="flex gap-1.5 mb-5">
                 {["5d", "1mo", "3mo", "6mo", "1y"].map((p) => (
-                  <button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === p ? "bg-[#0A2540] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100"}`}>{p}</button>
+                  <button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === p ? "bg-[#1B263B] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100"}`}>{p}</button>
                 ))}
               </div>
               <div className="h-52" data-testid="price-chart">
@@ -182,19 +182,19 @@ export default function TradingPage() {
                     <AreaChart data={chartData} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0A2540" stopOpacity={0.1} />
-                          <stop offset="95%" stopColor="#0A2540" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#1B263B" stopOpacity={0.1} />
+                          <stop offset="95%" stopColor="#1B263B" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
                       <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
                       <Tooltip content={<ChartTip />} />
-                      <Area type="monotone" dataKey="close" stroke="#0A2540" strokeWidth={1.5} fill="url(#grad)" dot={false} />
+                      <Area type="monotone" dataKey="close" stroke="#1B263B" strokeWidth={1.5} fill="url(#grad)" dot={false} />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-full flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-[#0A2540] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-[#1B263B] border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
               </div>
@@ -202,16 +202,16 @@ export default function TradingPage() {
 
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-card">
               <div className="px-5 py-4 border-b border-slate-100">
-                <h3 className="font-outfit text-sm font-semibold text-[#0A2540]">Open Positions</h3>
+                <h3 className="font-outfit text-sm font-semibold text-[#1B263B]">Open Positions</h3>
               </div>
               {positions.length === 0 ? (
                 <p className="px-5 py-8 text-sm text-slate-400 text-center">No open positions yet.</p>
               ) : (
                 <div className="divide-y divide-slate-50">
                   {positions.map((pos) => (
-                    <div key={pos.position_id} className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F8F9FA]">
+                    <div key={pos.position_id} className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F5F5F0]">
                       <div className="flex items-center gap-3">
-                        <span className="font-outfit text-sm font-semibold text-[#0A2540]">{pos.symbol?.replace("^", "")}</span>
+                        <span className="font-outfit text-sm font-semibold text-[#1B263B]">{pos.symbol?.replace("^", "")}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${pos.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
                           {pos.direction?.toUpperCase()}
                         </span>
@@ -234,7 +234,7 @@ export default function TradingPage() {
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card h-fit">
-            <h3 className="font-outfit text-base font-semibold text-[#0A2540] mb-5">Place Order</h3>
+            <h3 className="font-outfit text-base font-semibold text-[#1B263B] mb-5">Place Order</h3>
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Direction</label>
@@ -260,7 +260,7 @@ export default function TradingPage() {
             <div className="mb-5">
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contracts</label>
               <input type="number" min="0.1" step="0.1" value={contracts} onChange={(e) => setContracts(e.target.value)} data-testid="contracts-input"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-[#0A2540] font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#0A2540]/15 focus:border-[#0A2540] transition-all" />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-[#1B263B] font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#1B263B]/15 focus:border-[#1B263B] transition-all" />
               <div className="flex gap-1.5 mt-2">
                 {[1, 5, 10, 25].map((n) => (
                   <button key={n} onClick={() => setContracts(String(n))}
@@ -272,12 +272,12 @@ export default function TradingPage() {
             <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-5 space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">Index price</span>
-                <span className="font-mono font-medium text-[#0A2540]">{price > 0 ? price.toFixed(2) : "—"}</span>
+                <span className="font-mono font-medium text-[#1B263B]">{price > 0 ? price.toFixed(2) : "—"}</span>
               </div>
               <div className="h-px bg-slate-200" />
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-slate-600">Total Cost</span>
-                <span className="font-mono font-semibold text-[#0A2540]" data-testid="trade-cost">${cost.toFixed(2)}</span>
+                <span className="font-mono font-semibold text-[#1B263B]" data-testid="trade-cost">${cost.toFixed(2)}</span>
               </div>
             </div>
 

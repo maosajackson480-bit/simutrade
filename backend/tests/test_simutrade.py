@@ -233,3 +233,131 @@ class TestPortfolio:
         assert "open_positions" in data
         assert "realized_pnl" in data
         print(f"Portfolio: cash={data['cash_balance']}, total={data['total_portfolio_value']}")
+
+
+
+# ============== Phase 4 additions ==============
+
+# Guest auth
+class TestGuest:
+    def test_guest_create(self, session):
+        r = session.post(f"{BASE_URL}/api/auth/guest", json={})
+        assert r.status_code == 200, f"Guest creation failed: {r.text}"
+        data = r.json()
+        assert "token" in data and "user" in data
+        u = data["user"]
+        assert u["role"] == "guest"
+        assert u["balance"] == 10000
+        assert u["onboarding_complete"] is True
+        assert u["user_id"].startswith("guest_")
+        # Stash for subsequent tests
+        pytest._guest_token = data["token"]
+        pytest._guest_user = u
+        print(f"Guest created: {u['user_id']}")
+
+    def test_guest_token_can_access_portfolio(self, session):
+        token = getattr(pytest, "_guest_token", None)
+        assert token, "Guest token missing"
+        r = session.get(
+            f"{BASE_URL}/api/portfolio/summary",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert data["cash_balance"] == 10000
+        print("Guest JWT works for /portfolio/summary")
+
+    def test_guest_token_can_access_market_quotes(self, session):
+        token = getattr(pytest, "_guest_token", None)
+        r = session.get(
+            f"{BASE_URL}/api/market/quotes",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, (list, dict))
+        print("Guest JWT works for /market/quotes")
+
+    def test_guest_can_open_trade(self, session):
+        token = getattr(pytest, "_guest_token", None)
+        r = session.post(
+            f"{BASE_URL}/api/trading/open",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"symbol": "^VIX", "direction": "long", "quantity": 1},
+        )
+        # yfinance can be slow, retry once
+        if r.status_code not in (200, 201):
+            time.sleep(3)
+            r = session.post(
+                f"{BASE_URL}/api/trading/open",
+                headers={"Authorization": f"Bearer {token}"},
+                json={"symbol": "^VIX", "direction": "long", "quantity": 1},
+            )
+        assert r.status_code in (200, 201), f"Guest open trade failed: {r.status_code} {r.text}"
+        print("Guest can open a trade")
+
+
+# Deriv integration (no real token available)
+class TestDeriv:
+    def test_status_without_connect(self, authed_session):
+        # Clean slate — ensure no leftover account for test_auto
+        authed_session.post(f"{BASE_URL}/api/deriv/disconnect")
+        r = authed_session.get(f"{BASE_URL}/api/deriv/status")
+        assert r.status_code == 200
+        data = r.json()
+        assert data.get("connected") is False
+        print("Deriv /status returns connected=false when no account linked")
+
+    def test_connect_invalid_token(self, authed_session):
+        r = authed_session.post(
+            f"{BASE_URL}/api/deriv/connect",
+            json={"api_token": "invalid_deriv_token_xxxxx"},
+        )
+        # Could be 400 (Deriv rejected) or 503 (unreachable). Both acceptable; 400 preferred.
+        assert r.status_code in (400, 503), f"Unexpected: {r.status_code} {r.text}"
+        detail = r.json().get("detail", "")
+        print(f"Invalid token -> {r.status_code}: {detail}")
+
+    def test_connect_short_token_400(self, authed_session):
+        r = authed_session.post(f"{BASE_URL}/api/deriv/connect", json={"api_token": "short"})
+        assert r.status_code == 400
+        assert "Invalid API token" in r.json().get("detail", "")
+        print("Short token rejected with 400")
+
+    def test_symbols_requires_connection(self, authed_session):
+        r = authed_session.get(f"{BASE_URL}/api/deriv/symbols")
+        assert r.status_code == 400
+        assert "not connected" in r.json().get("detail", "").lower()
+        print("/deriv/symbols requires connection")
+
+    def test_portfolio_requires_connection(self, authed_session):
+        r = authed_session.get(f"{BASE_URL}/api/deriv/portfolio")
+        assert r.status_code == 400
+        assert "not connected" in r.json().get("detail", "").lower()
+        print("/deriv/portfolio requires connection")
+
+    def test_buy_requires_connection(self, authed_session):
+        r = authed_session.post(
+            f"{BASE_URL}/api/deriv/buy",
+            json={"symbol": "R_100", "contract_type": "CALL", "amount": 10, "duration": 60, "duration_unit": "s"},
+        )
+        assert r.status_code == 400
+        assert "not connected" in r.json().get("detail", "").lower()
+        print("/deriv/buy requires connection")
+
+    def test_sell_requires_connection(self, authed_session):
+        r = authed_session.post(
+            f"{BASE_URL}/api/deriv/sell",
+            json={"contract_id": 123456, "price": 0},
+        )
+        assert r.status_code == 400
+        assert "not connected" in r.json().get("detail", "").lower()
+        print("/deriv/sell requires connection")
+
+    def test_deriv_endpoints_require_auth(self, session):
+        # No bearer token — should 401
+        r = session.get(f"{BASE_URL}/api/deriv/status")
+        assert r.status_code == 401
+        r2 = session.post(f"{BASE_URL}/api/deriv/connect", json={"api_token": "x" * 20})
+        assert r2.status_code == 401
+        print("Deriv endpoints require auth")

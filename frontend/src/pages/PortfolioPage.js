@@ -41,8 +41,8 @@ export default function PortfolioPage() {
   const fmt = (n) => `$${Math.abs(n ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 
   const cards = [
-    { l: "Portfolio Value", v: `$${(portfolio?.total_portfolio_value ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#0A2540]" },
-    { l: "Cash Balance", v: `$${(portfolio?.cash_balance ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#0A2540]" },
+    { l: "Portfolio Value", v: `$${(portfolio?.total_portfolio_value ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#1B263B]" },
+    { l: "Cash Balance", v: `$${(portfolio?.cash_balance ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#1B263B]" },
     { l: "Unrealized P&L", v: `${(portfolio?.unrealized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.unrealized_pnl)}`, c: (portfolio?.unrealized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500" },
     { l: "Realized P&L", v: `${(portfolio?.realized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.realized_pnl)}`, c: (portfolio?.realized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500" },
   ];
@@ -51,7 +51,7 @@ export default function PortfolioPage() {
     <Layout>
       <div className="max-w-5xl mx-auto font-inter">
         <div className="mb-8">
-          <h1 className="font-outfit text-3xl font-semibold text-[#0A2540] mb-1">Portfolio</h1>
+          <h1 className="font-outfit text-3xl font-semibold text-[#1B263B] mb-1">Portfolio</h1>
           <p className="text-sm text-slate-400">Your simulated trading performance.</p>
         </div>
 
@@ -91,7 +91,7 @@ export default function PortfolioPage() {
         <div className="flex bg-slate-100 rounded-xl p-0.5 mb-5 w-fit">
           {[{ k: "open", l: `Open (${positions.length})` }, { k: "closed", l: `History (${history.length})` }].map((t) => (
             <button key={t.k} onClick={() => setTab(t.k)} data-testid={`portfolio-tab-${t.k}`}
-              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === t.k ? "bg-white text-[#0A2540] shadow-sm" : "text-slate-400"}`}>
+              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === t.k ? "bg-white text-[#1B263B] shadow-sm" : "text-slate-400"}`}>
               {t.l}
             </button>
           ))}
@@ -114,8 +114,8 @@ export default function PortfolioPage() {
                 </thead>
                 <tbody>
                   {positions.map((p) => (
-                    <tr key={p.position_id} className="border-b border-slate-50 hover:bg-[#F8F9FA] transition-colors">
-                      <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#0A2540]">{p.symbol?.replace("^", "")}</td>
+                    <tr key={p.position_id} className="border-b border-slate-50 hover:bg-[#F5F5F0] transition-colors">
+                      <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#1B263B]">{p.symbol?.replace("^", "")}</td>
                       <td className="px-4 py-4">
                         <span className={`flex items-center gap-1 text-xs font-semibold w-fit px-2 py-0.5 rounded-full ${p.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
                           {p.direction === "long" ? <TrendingUp size={11} /> : <TrendingDown size={11} />}{p.direction?.toUpperCase()}
@@ -156,8 +156,8 @@ export default function PortfolioPage() {
                 </thead>
                 <tbody>
                   {history.map((t) => (
-                    <tr key={t.position_id} className="border-b border-slate-50 hover:bg-[#F8F9FA]">
-                      <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#0A2540]">{t.symbol?.replace("^", "")}</td>
+                    <tr key={t.position_id} className="border-b border-slate-50 hover:bg-[#F5F5F0]">
+                      <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#1B263B]">{t.symbol?.replace("^", "")}</td>
                       <td className="px-4 py-4">
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
                           {t.direction?.toUpperCase()}
