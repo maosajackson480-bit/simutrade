@@ -99,7 +99,7 @@ export default function TradingPage() {
           {msg && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className={`mb-4 flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium ${
-                msg.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-red-50 border border-red-200 text-red-600"
+                msg.ok ? "bg-[#EAF0E4] border border-[#426B1F]/30 text-[#426B1F]" : "bg-red-50 border border-red-200 text-red-600"
               }`} data-testid="trade-message">
               <div className="flex items-center gap-2">
                 {msg.ok ? <CheckCircle size={15} /> : <X size={15} />}{msg.text}
@@ -123,7 +123,7 @@ export default function TradingPage() {
                   <Sparkles size={13} strokeWidth={2.2} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs uppercase tracking-wider font-semibold text-emerald-300 mb-1">
+                  <p className="text-xs uppercase tracking-wider font-semibold text-[#E07A5F] mb-1">
                     Why this trade · educational
                   </p>
                   {rationaleLoading ? (
@@ -147,7 +147,7 @@ export default function TradingPage() {
                 selected === q.symbol ? "bg-[#1B263B] border-[#1B263B] text-white" : "bg-white border-slate-200 text-[#1B263B] hover:border-slate-300 hover:bg-[#F5F5F0]"
               }`}>
               <div className="font-outfit text-sm font-semibold">{q.display}</div>
-              <div className={`font-mono text-xs mt-0.5 ${selected === q.symbol ? "text-white/60" : q.change_pct >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+              <div className={`font-mono text-xs mt-0.5 ${selected === q.symbol ? "text-white/60" : q.change_pct >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                 {q.price > 0 ? q.price.toFixed(2) : "—"} <span>{q.change_pct >= 0 ? "▲" : "▼"}{Math.abs(q.change_pct).toFixed(1)}%</span>
               </div>
             </button>
@@ -161,10 +161,10 @@ export default function TradingPage() {
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <h2 className="font-outfit text-xl font-semibold text-[#1B263B]">{currentQuote.display || selected.replace("^", "")}</h2>
-                    <span className={`font-mono text-xl font-semibold ${(currentQuote.change_pct ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    <span className={`font-mono text-xl font-semibold ${(currentQuote.change_pct ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                       {price > 0 ? price.toFixed(2) : "—"}
                     </span>
-                    <span className={`text-sm font-mono ${(currentQuote.change_pct ?? 0) >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+                    <span className={`text-sm font-mono ${(currentQuote.change_pct ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-400"}`}>
                       {(currentQuote.change_pct ?? 0) >= 0 ? "+" : ""}{(currentQuote.change_pct ?? 0).toFixed(2)}%
                     </span>
                   </div>
@@ -212,13 +212,13 @@ export default function TradingPage() {
                     <div key={pos.position_id} className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F5F5F0]">
                       <div className="flex items-center gap-3">
                         <span className="font-outfit text-sm font-semibold text-[#1B263B]">{pos.symbol?.replace("^", "")}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${pos.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${pos.direction === "long" ? "bg-[#EAF0E4] text-[#426B1F]" : "bg-red-50 text-red-600"}`}>
                           {pos.direction?.toUpperCase()}
                         </span>
                         <span className="text-xs text-slate-400">{pos.contracts}× @ {pos.entry_price?.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className={`font-mono text-sm font-semibold ${(pos.unrealized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`} data-testid={`position-pnl-${pos.position_id}`}>
+                        <span className={`font-mono text-sm font-semibold ${(pos.unrealized_pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500"}`} data-testid={`position-pnl-${pos.position_id}`}>
                           {(pos.unrealized_pnl ?? 0) >= 0 ? "+" : ""}${Math.abs(pos.unrealized_pnl ?? 0).toFixed(2)}
                         </span>
                         <button onClick={() => handleClose(pos.position_id)} data-testid={`close-position-${pos.position_id}`}
@@ -247,7 +247,7 @@ export default function TradingPage() {
               )}
               <div className="flex border border-slate-200 rounded-xl overflow-hidden">
                 <button onClick={() => setDirection("long")} data-testid="direction-long"
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all ${direction === "long" ? "bg-emerald-500 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}>
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all ${direction === "long" ? "bg-[#426B1F] text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}>
                   <TrendingUp size={15} strokeWidth={2} /> Long
                 </button>
                 <button onClick={() => setDirection("short")} data-testid="direction-short"
@@ -283,7 +283,7 @@ export default function TradingPage() {
 
             <button onClick={handleTrade} disabled={tradeLoading || price <= 0 || !contracts || parseFloat(contracts) <= 0}
               data-testid="trade-submit-button"
-              className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${direction === "long" ? "bg-emerald-500 text-white hover:bg-emerald-600" : "bg-red-500 text-white hover:bg-red-600"}`}>
+              className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${direction === "long" ? "bg-[#426B1F] text-white hover:bg-[#355818]" : "bg-red-500 text-white hover:bg-red-600"}`}>
               {tradeLoading ? "Placing..." : `Open ${direction.toUpperCase()} Position`}
             </button>
             <p className="text-center text-xs text-slate-400 mt-3">Virtual currency only — no real money</p>

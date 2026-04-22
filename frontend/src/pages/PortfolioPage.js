@@ -43,8 +43,8 @@ export default function PortfolioPage() {
   const cards = [
     { l: "Portfolio Value", v: `$${(portfolio?.total_portfolio_value ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#1B263B]" },
     { l: "Cash Balance", v: `$${(portfolio?.cash_balance ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}`, c: "text-[#1B263B]" },
-    { l: "Unrealized P&L", v: `${(portfolio?.unrealized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.unrealized_pnl)}`, c: (portfolio?.unrealized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500" },
-    { l: "Realized P&L", v: `${(portfolio?.realized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.realized_pnl)}`, c: (portfolio?.realized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500" },
+    { l: "Unrealized P&L", v: `${(portfolio?.unrealized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.unrealized_pnl)}`, c: (portfolio?.unrealized_pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500" },
+    { l: "Realized P&L", v: `${(portfolio?.realized_pnl ?? 0) >= 0 ? "+" : "-"}${fmt(portfolio?.realized_pnl)}`, c: (portfolio?.realized_pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500" },
   ];
 
   return (
@@ -56,7 +56,7 @@ export default function PortfolioPage() {
         </div>
 
         {msg && (
-          <div className={`mb-4 flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium ${msg.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-red-50 border border-red-200 text-red-600"}`}>
+          <div className={`mb-4 flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium ${msg.ok ? "bg-[#EAF0E4] border border-[#426B1F]/30 text-[#426B1F]" : "bg-red-50 border border-red-200 text-red-600"}`}>
             <span>{msg.text}</span><button onClick={() => setMsg(null)}><X size={13} /></button>
           </div>
         )}
@@ -74,12 +74,12 @@ export default function PortfolioPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-card">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-slate-500">Overall Performance</span>
-            <span className={`font-outfit text-lg font-semibold ${pct >= 0 ? "text-emerald-600" : "text-red-500"}`} data-testid="overall-return-pct">
+            <span className={`font-outfit text-lg font-semibold ${pct >= 0 ? "text-[#426B1F]" : "text-red-500"}`} data-testid="overall-return-pct">
               {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
             </span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-700 ${pct >= 0 ? "bg-emerald-500" : "bg-red-400"}`}
+            <div className={`h-full rounded-full transition-all duration-700 ${pct >= 0 ? "bg-[#E07A5F]" : "bg-red-400"}`}
               style={{ width: `${Math.min(Math.abs(pct) * 2, 100)}%` }} />
           </div>
           <div className="flex justify-between text-xs text-slate-400 mt-2">
@@ -117,7 +117,7 @@ export default function PortfolioPage() {
                     <tr key={p.position_id} className="border-b border-slate-50 hover:bg-[#F5F5F0] transition-colors">
                       <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#1B263B]">{p.symbol?.replace("^", "")}</td>
                       <td className="px-4 py-4">
-                        <span className={`flex items-center gap-1 text-xs font-semibold w-fit px-2 py-0.5 rounded-full ${p.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                        <span className={`flex items-center gap-1 text-xs font-semibold w-fit px-2 py-0.5 rounded-full ${p.direction === "long" ? "bg-[#EAF0E4] text-[#426B1F]" : "bg-red-50 text-red-600"}`}>
                           {p.direction === "long" ? <TrendingUp size={11} /> : <TrendingDown size={11} />}{p.direction?.toUpperCase()}
                         </span>
                       </td>
@@ -125,7 +125,7 @@ export default function PortfolioPage() {
                       <td className="px-4 py-4 font-mono text-sm text-slate-500">{p.entry_price?.toFixed(2)}</td>
                       <td className="px-4 py-4 font-mono text-sm text-slate-500">{p.current_price?.toFixed(2) || "—"}</td>
                       <td className="px-4 py-4">
-                        <span className={`font-mono text-sm font-semibold ${(p.unrealized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                        <span className={`font-mono text-sm font-semibold ${(p.unrealized_pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                           {(p.unrealized_pnl ?? 0) >= 0 ? "+" : ""}${Math.abs(p.unrealized_pnl ?? 0).toFixed(2)}
                         </span>
                       </td>
@@ -159,7 +159,7 @@ export default function PortfolioPage() {
                     <tr key={t.position_id} className="border-b border-slate-50 hover:bg-[#F5F5F0]">
                       <td className="px-4 py-4 font-outfit text-sm font-semibold text-[#1B263B]">{t.symbol?.replace("^", "")}</td>
                       <td className="px-4 py-4">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.direction === "long" ? "bg-[#EAF0E4] text-[#426B1F]" : "bg-red-50 text-red-600"}`}>
                           {t.direction?.toUpperCase()}
                         </span>
                       </td>
@@ -167,7 +167,7 @@ export default function PortfolioPage() {
                       <td className="px-4 py-4 font-mono text-sm text-slate-500">{t.entry_price?.toFixed(2)}</td>
                       <td className="px-4 py-4 font-mono text-sm text-slate-500">{t.exit_price?.toFixed(2) || "—"}</td>
                       <td className="px-4 py-4">
-                        <span className={`font-mono text-sm font-semibold flex items-center gap-1 ${(t.pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                        <span className={`font-mono text-sm font-semibold flex items-center gap-1 ${(t.pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                           {(t.pnl ?? 0) >= 0 ? <CheckCircle size={11} /> : <X size={11} />}
                           {(t.pnl ?? 0) >= 0 ? "+" : ""}${Math.abs(t.pnl ?? 0).toFixed(2)}
                         </span>

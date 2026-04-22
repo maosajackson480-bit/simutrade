@@ -207,6 +207,7 @@ async def place_sell(req: SellRequest, request: Request):
 async def tick_stream(ws: WebSocket, symbol: str, token: str):
     """Client connects to /api/deriv/ticks/{symbol}?token=<jwt>.
     We validate the JWT, fetch stored Deriv token, then proxy tick stream."""
+    await ws.accept()
     # Manual JWT auth (can't use Depends on websocket easily)
     import jwt as _jwt
     from core.config import JWT_SECRET, JWT_ALG
@@ -228,7 +229,6 @@ async def tick_stream(ws: WebSocket, symbol: str, token: str):
         await ws.close(code=1011)
         return
 
-    await ws.accept()
     stop = asyncio.Event()
 
     async def pump(tick):

@@ -16,9 +16,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/guest")
 async def guest():
-    """Create a throwaway guest user and return a JWT for instant demo trading."""
+    """Create a throwaway guest user and return a JWT for instant demo trading.
+
+    Guests auto-expire after 7 days via Mongo TTL index on `guest_expires_at`.
+    """
     user_id = f"guest_{uuid.uuid4().hex[:12]}"
     email = f"{user_id}@simutrade.local"
+    now = datetime.now(timezone.utc)
     doc = {
         "user_id": user_id,
         "email": email,
@@ -27,11 +31,20 @@ async def guest():
         "auth_type": "guest",
         "onboarding_complete": True,
         "balance": STARTING_BALANCE,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": now.isoformat(),
+        "guest_expires_at": now + timedelta(days=7),
     }
-    await db.users.insert_one(doc)
-    token = create_access_token(user_id, email)
+    try:
+        await db.users.insert_one(doc)
+    except Exception:
+        # Extremely rare uuid collision — retry once with a fresh id
+        user_id = f"guest_{uuid.uuid4().hex[:12]}"
+        doc["user_id"] = user_id
+        doc["email"] = f"{user_id}@simutrade.local"
+        await db.users.insert_one(doc)
+    token = create_access_token(doc["user_id"], doc["email"])
     doc.pop("_id", None)
+    doc.pop("guest_expires_at", None)  # internal only
     return {"user": doc, "token": token}
 
 

@@ -53,7 +53,7 @@ export default function AuthPage() {
         <div className="relative z-10 space-y-8">
           <div>
             <h2 className="font-outfit text-4xl font-semibold text-white leading-tight mb-4">
-              Learn volatility trading.<br /><span className="text-emerald-400">Risk-free.</span>
+              Learn volatility trading.<br /><span className="text-[#E07A5F]">Risk-free.</span>
             </h2>
             <p className="text-slate-400 text-base leading-relaxed">Practice with CBOE volatility indices using virtual currency.</p>
           </div>

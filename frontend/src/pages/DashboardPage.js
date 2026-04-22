@@ -101,14 +101,14 @@ export default function DashboardPage() {
             label="Total Return"
             value={`${pct >= 0 ? "+" : ""}${fmt(portfolio?.total_return ?? 0)}`}
             sub="vs. $10K start"
-            colorClass={pct > 0 ? "text-emerald-600" : pct < 0 ? "text-red-500" : "text-[#1B263B]"}
+            colorClass={pct > 0 ? "text-[#426B1F]" : pct < 0 ? "text-red-500" : "text-[#1B263B]"}
             i={2}
           />
           <MetricCard
             label="Return %"
             value={`${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`}
             sub={`${portfolio?.total_trades ?? 0} closed trades`}
-            colorClass={pct > 0 ? "text-emerald-600" : pct < 0 ? "text-red-500" : "text-[#1B263B]"}
+            colorClass={pct > 0 ? "text-[#426B1F]" : pct < 0 ? "text-red-500" : "text-[#1B263B]"}
             i={3}
           />
         </div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="font-outfit text-base font-semibold text-[#1B263B]">Volatility Watchlist</h2>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full live-dot" />
+                <div className="w-1.5 h-1.5 bg-[#E07A5F] rounded-full live-dot" />
                 <span className="text-xs text-slate-400">Live</span>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                         {q.price > 0 ? q.price.toFixed(2) : "—"}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className={`font-mono text-sm font-semibold ${q.change_pct >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                        <span className={`font-mono text-sm font-semibold ${q.change_pct >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                           {q.change_pct >= 0 ? "+" : ""}{q.change_pct.toFixed(2)}%
                         </span>
                       </td>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <button onClick={() => navigate(isDemo ? "/trading" : "/brokers")} data-testid="quick-trade-btn"
-              className="flex items-center justify-center gap-2 bg-emerald-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors mt-6">
+              className="flex items-center justify-center gap-2 bg-[#426B1F] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#D36649] transition-colors mt-6">
               {isDemo ? "Open Position" : "View Brokers"} <ArrowRight size={15} strokeWidth={2} />
             </button>
           </div>
@@ -212,11 +212,11 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     <span className="font-outfit font-semibold text-sm text-[#1B263B]">{pos.symbol?.replace("^", "")}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                      pos.direction === "long" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
+                      pos.direction === "long" ? "bg-[#EAF0E4] text-[#426B1F]" : "bg-red-50 text-red-600"
                     }`}>{pos.direction?.toUpperCase()}</span>
                     <span className="text-xs text-slate-400">{pos.contracts} × {pos.entry_price?.toFixed(2)}</span>
                   </div>
-                  <span className={`font-mono text-sm font-semibold ${(pos.unrealized_pnl ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`font-mono text-sm font-semibold ${(pos.unrealized_pnl ?? 0) >= 0 ? "text-[#426B1F]" : "text-red-500"}`}>
                     {(pos.unrealized_pnl ?? 0) >= 0 ? "+" : ""}${Math.abs(pos.unrealized_pnl ?? 0).toFixed(2)}
                   </span>
                 </div>

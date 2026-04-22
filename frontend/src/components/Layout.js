@@ -62,7 +62,7 @@ export default function Layout({ children }) {
             onClick={() => setMode("real")}
             data-testid="mode-live-btn"
             className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
-              !isDemo ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              !isDemo ? "bg-white text-[#426B1F] shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <ExternalLink size={12} strokeWidth={2} />
@@ -154,7 +154,7 @@ export default function Layout({ children }) {
               className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
                 isDemo
                   ? "bg-slate-50 text-slate-600 border-slate-200"
-                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-[#EAF0E4] text-[#426B1F] border-[#426B1F]/30"
               }`}
             >
               {isDemo ? <FlaskConical size={11} /> : <ExternalLink size={11} />}

@@ -25,7 +25,7 @@ export default function SettingsPage() {
         </div>
 
         {msg && (
-          <div className={`mb-5 px-4 py-3 rounded-xl text-sm font-medium ${msg.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-red-50 border border-red-200 text-red-600"}`}>
+          <div className={`mb-5 px-4 py-3 rounded-xl text-sm font-medium ${msg.ok ? "bg-[#EAF0E4] border border-[#426B1F]/30 text-[#426B1F]" : "bg-red-50 border border-red-200 text-red-600"}`}>
             {msg.text}
           </div>
         )}
@@ -101,7 +101,7 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-[#1B263B]">Virtual Balance</p>
               <p className="text-xs text-slate-400">Current simulation balance</p>
             </div>
-            <span className="font-mono font-semibold text-emerald-600 text-base" data-testid="settings-balance">
+            <span className="font-mono font-semibold text-[#426B1F] text-base" data-testid="settings-balance">
               ${(user?.balance ?? 10000).toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </span>
           </div>

@@ -52,6 +52,19 @@ app.include_router(api_router)
 async def startup():
     await db.users.create_index("email", unique=True)
     await db.users.create_index("user_id")
+    await db.users.create_index(
+        [("role", 1), ("guest_expires_at", 1)],
+        partialFilterExpression={"role": "guest"},
+    )
+    # TTL index: Mongo auto-deletes guest users 7 days after guest_expires_at
+    try:
+        await db.users.create_index(
+            "guest_expires_at", expireAfterSeconds=0,
+            partialFilterExpression={"role": "guest"},
+            name="guest_ttl_idx",
+        )
+    except Exception:
+        pass  # index may already exist with different options
     await db.sessions.create_index("session_token")
     await db.positions.create_index("user_id")
 

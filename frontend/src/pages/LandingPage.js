@@ -161,7 +161,7 @@ export default function LandingPage() {
               <span className="text-[#1B263B] font-semibold">{t.sym}</span>
               <span className="mx-1.5 text-slate-300">·</span>
               <span className="font-mono text-slate-600">{t.val}</span>
-              <span className={`ml-1.5 font-mono text-xs ${t.up ? "text-emerald-500" : "text-red-400"}`}>
+              <span className={`ml-1.5 font-mono text-xs ${t.up ? "text-[#426B1F]" : "text-red-400"}`}>
                 {t.up ? "▲" : "▼"}
               </span>
               <span className="ml-8 text-slate-200">|</span>
@@ -217,7 +217,7 @@ export default function LandingPage() {
           </div>
           <div className="text-center mt-14">
             <button onClick={goDemo} data-testid="steps-cta"
-              className="inline-flex items-center gap-2 bg-emerald-500 text-white px-10 py-4 rounded-xl font-semibold hover:bg-emerald-600 transition-all hover:shadow-lg duration-200">
+              className="inline-flex items-center gap-2 bg-[#426B1F] text-white px-10 py-4 rounded-xl font-semibold hover:bg-[#D36649] transition-all hover:shadow-lg duration-200">
               Start Simulating Now <ArrowRight size={17} strokeWidth={2} />
             </button>
           </div>
@@ -246,7 +246,7 @@ export default function LandingPage() {
             Join thousands of learners mastering volatility indices — completely risk-free.
           </p>
           <button onClick={goDemo}
-            className="bg-emerald-500 text-white px-10 py-4 rounded-xl font-semibold text-base hover:bg-emerald-400 transition-colors inline-flex items-center gap-2">
+            className="bg-[#426B1F] text-white px-10 py-4 rounded-xl font-semibold text-base hover:bg-[#D36649] transition-colors inline-flex items-center gap-2">
             Create Free Account <ArrowRight size={17} />
           </button>
         </div>

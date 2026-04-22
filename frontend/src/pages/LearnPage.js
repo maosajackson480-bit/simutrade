@@ -160,7 +160,7 @@ export default function LearnPage() {
               <div className="mt-10 bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center">
                 <p className="font-outfit text-lg font-semibold text-[#1B263B] mb-2">Ready to practice?</p>
                 <p className="text-sm text-slate-500 mb-4">Apply what you've learned with $10,000 virtual currency.</p>
-                <Link to="/auth" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
+                <Link to="/auth" className="inline-flex items-center gap-2 bg-[#426B1F] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#D36649] transition-colors">
                   Start Simulating Free <ArrowRight size={15} />
                 </Link>
               </div>
