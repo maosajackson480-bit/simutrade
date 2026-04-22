@@ -7,6 +7,7 @@ import {
   Clock, Lock, Heart, CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import LiveChartPreview from "../components/LiveChartPreview";
 
 const TICKERS = [
   { sym: "VIX", val: "19.11", up: true },
@@ -113,26 +114,40 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden" data-testid="hero-section">
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 md:py-28 text-center">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-[#1B263B] bg-[#F9EAE6] border border-[#E07A5F]/30 rounded-full px-4 py-1.5 mb-8">
-              <Clock size={12} /> Start in 5 Seconds
-            </span>
-            <h1 className="font-outfit text-4xl sm:text-6xl lg:text-7xl font-medium tracking-tight leading-[1.04] mb-6 text-[#1B263B] max-w-4xl mx-auto">
-              Start Trading in 5 Seconds —{" "}
-              <span className="text-[#E07A5F]">No Risk, No Signup</span>
-            </h1>
-            <p className="text-lg md:text-xl text-[#415A77] leading-relaxed max-w-2xl mx-auto mb-10">
-              Practice with real market data, learn fast, then switch to real trading when you're ready.
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center mb-6">
-              <PrimaryCTA testid="hero-cta-demo" label="Start Demo Trading" />
-              <SecondaryCTA testid="hero-cta-real" label="Go Live with Real Trading" />
-            </div>
-            <p className="text-xs text-[#778DA9]">
-              No signup required · Free demo balance · Beginner-friendly
-            </p>
-          </motion.div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 md:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+              className="text-center lg:text-left">
+              <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-[#1B263B] bg-[#F9EAE6] border border-[#E07A5F]/30 rounded-full px-4 py-1.5 mb-7">
+                <Clock size={12} /> Start in 5 Seconds
+              </span>
+              <h1 className="font-outfit text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.04] mb-5 text-[#1B263B]">
+                Start Trading in 5 Seconds —{" "}
+                <span className="text-[#E07A5F]">No Risk, No Signup</span>
+              </h1>
+              <p className="text-base md:text-lg text-[#415A77] leading-relaxed max-w-xl lg:mx-0 mx-auto mb-8">
+                Practice with real market data, learn fast, then switch to real trading when you're ready.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-5">
+                <PrimaryCTA testid="hero-cta-demo" label="Start Demo Trading" />
+                <SecondaryCTA testid="hero-cta-real" label="Go Live with Real Trading" />
+              </div>
+              <p className="text-xs text-[#778DA9]">
+                No signup required · Free demo balance · Beginner-friendly
+              </p>
+            </motion.div>
+
+            {/* Live chart preview */}
+            <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="relative w-full aspect-[16/11] lg:aspect-[4/3] max-w-xl mx-auto">
+              {/* Decorative backdrop */}
+              <div className="absolute -inset-6 bg-gradient-to-br from-[#F9EAE6] via-transparent to-[#EAF0E4] rounded-3xl -z-0 blur-xl opacity-70" />
+              <div className="relative z-10 w-full h-full">
+                <LiveChartPreview />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
