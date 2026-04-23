@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { createDerivConnection, authorizeUser, getBalance } from "./derivSocket.js";
+import WebSocket from "ws";
+
 import {
   createSession,
   getSession,
@@ -11,20 +12,21 @@ import {
   getAllSessions,
   getSessionCount
 } from "./userSessions.js";
+
 import { buyTrade, sellTrade } from "./trading.js";
+
 import {
   subscribeToContract,
-  setupContractUpdates,
-  getAllSubscriptions,
   unsubscribeAllContracts
 } from "./tradeManager.js";
+
 import {
   createWebSocketServer,
   sendToUser,
-  sendContractUpdate,
   getClientCount,
   getSubscriptionCount
 } from "./websocketServer.js";
+
 import {
   registerContract,
   getUserForContract,
@@ -39,46 +41,93 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const WS_PORT = process.env.WS_PORT || 3001;
 
-// Initialize WebSocket server
 createWebSocketServer(WS_PORT);
-console.log(`🚀 WebSocket server running on port ${WS_PORT}`);
+console.log(`🚀 WS Server running on ${WS_PORT}`);
 
-// Main Deriv connection
-const derivWs = createDerivConnection();
+//////////////////////////////////////////////////
+// 🔌 SINGLE DERIV CONNECTION (GLOBAL)
+//////////////////////////////////////////////////
 
-derivWs.on("message", (msg) => {
-  try {
-    const data = JSON.parse(msg);
+let derivWs;
+let reconnectAttempts = 0;
 
-    if (data.proposal_open_contract) {
-      const update = data.proposal_open_contract;
-      const contractId = update.contract_id;
-      const userId = getUserForContract(contractId);
-      
-      if (userId) {
-        sendToUser(userId, {
-          type: "contract_update",
-          contractId,
-          data: update,
-          timestamp: Date.now()
-        });
-        
-        sendContractUpdate(contractId, update);
+function connectDeriv() {
+  derivWs = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=1089");
+
+  derivWs.on("open", () => {
+    console.log("✅ Connected to Deriv API");
+    reconnectAttempts = 0;
+
+    // 🔁 Keepalive ping
+    setInterval(() => {
+      if (derivWs.readyState === WebSocket.OPEN) {
+        derivWs.send(JSON.stringify({ ping: 1 }));
       }
+    }, 30000);
+  });
+
+  derivWs.on("message", (msg) => {
+    try {
+      const data = JSON.parse(msg);
+
+      // 📊 Balance updates
+      if (data.msg_type === "balance") {
+        const session = [...getAllSessions()].find(
+          (s) => s.accountId === data.balance.loginid
+        );
+
+        if (session) {
+          updateSessionBalance(session.userId, data.balance.balance);
+          sendToUser(session.userId, {
+            type: "balance_update",
+            balance: data.balance.balance
+          });
+        }
+      }
+
+      // 📈 Contract updates
+      if (data.proposal_open_contract) {
+        const contractId = data.proposal_open_contract.contract_id;
+        const userId = getUserForContract(contractId);
+
+        if (userId) {
+          sendToUser(userId, {
+            type: "contract_update",
+            contractId,
+            data: data.proposal_open_contract
+          });
+        }
+      }
+    } catch (err) {
+      console.error("❌ Message error:", err);
     }
-  } catch (error) {
-    console.error("Error processing Deriv message:", error);
-  }
-});
+  });
 
-// Cleanup inactive sessions
+  derivWs.on("close", () => {
+    console.log("⚠️ Deriv disconnected");
+
+    const delay = Math.min(10000, 1000 * 2 ** reconnectAttempts++);
+    setTimeout(connectDeriv, delay);
+  });
+
+  derivWs.on("error", (err) => {
+    console.error("❌ WS Error:", err.message);
+    derivWs.close();
+  });
+}
+
+// Start connection
+connectDeriv();
+
+//////////////////////////////////////////////////
+// 🧹 SESSION CLEANUP
+//////////////////////////////////////////////////
+
 setInterval(() => {
-  const sessions = getAllSessions();
   const now = Date.now();
-  const maxInactiveTime = 1 * 60 * 60 * 1000;
 
-  sessions.forEach(session => {
-    if (now - session.lastActivity > maxInactiveTime) {
+  getAllSessions().forEach((session) => {
+    if (now - session.lastActivity > 60 * 60 * 1000) {
       unregisterUserContracts(session.userId);
       unsubscribeAllContracts(session.userId);
       deleteSession(session.userId);
@@ -86,259 +135,128 @@ setInterval(() => {
   });
 }, 30 * 60 * 1000);
 
-// Routes
-app.get("/", (req, res) => {
-  res.json({ status: "✅ Backend running" });
+//////////////////////////////////////////////////
+// 🚀 ROUTES
+//////////////////////////////////////////////////
+
+app.get("/", (_, res) => {
+  res.json({ status: "✅ Running" });
 });
 
-app.post("/connect", async (req, res) => {
-  try {
-    const { userId, token } = req.body;
+//////////////////////////////////////////////////
+// 🔐 CONNECT USER
+//////////////////////////////////////////////////
 
-    if (!userId || !token) {
-      return res.status(400).json({ error: "userId and token required" });
+app.post("/connect", (req, res) => {
+  const { userId, token } = req.body;
+
+  if (!userId || !token) {
+    return res.status(400).json({ error: "Missing params" });
+  }
+
+  if (getSession(userId)) {
+    return res.status(400).json({ error: "Already connected" });
+  }
+
+  derivWs.send(JSON.stringify({ authorize: token }));
+
+  derivWs.once("message", (msg) => {
+    const data = JSON.parse(msg);
+
+    if (!data.authorize) {
+      return res.status(401).json({ error: "Auth failed" });
     }
 
-    const existingSession = getSession(userId);
-    if (existingSession) {
-      return res.status(400).json({ error: "User already has active session" });
-    }
+    const account = data.authorize;
 
-    const ws = createDerivConnection();
+    createSession(userId, token, account);
 
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Connection timeout")), 5000);
-      ws.on("open", () => {
-        clearTimeout(timeout);
-        resolve();
-      });
-      ws.on("error", reject);
-    });
-
-    const accountInfo = await authorizeUser(ws, token);
-    const balance = await getBalance(ws);
-    
-    const session = createSession(userId, token, ws, accountInfo);
-    updateSessionBalance(userId, balance);
-
-    setupContractUpdates(ws, userId);
-
-    ws.on("message", (msg) => {
-      try {
-        const data = JSON.parse(msg);
-        if (data.msg_type === "balance") {
-          updateSessionBalance(userId, data.balance);
-          sendToUser(userId, {
-            type: "balance_update",
-            balance: data.balance,
-            timestamp: Date.now()
-          });
-        }
-      } catch (error) {
-        console.error("Error processing message:", error);
-      }
-    });
-
-    sendToUser(userId, {
-      type: "connected",
-      accountId: accountInfo.accountId,
-      email: accountInfo.email,
-      currency: accountInfo.currency,
-      balance
-    });
+    // Request balance
+    derivWs.send(JSON.stringify({ balance: 1 }));
 
     res.json({
       status: "connected",
-      accountId: accountInfo.accountId,
-      email: accountInfo.email,
-      currency: accountInfo.currency,
-      balance,
+      accountId: account.loginid,
+      email: account.email,
+      currency: account.currency,
       wsPort: WS_PORT
     });
-  } catch (error) {
-    console.error("Connection error:", error);
-    res.status(401).json({ error: error.message || "Authorization failed" });
-  }
+  });
 });
+
+//////////////////////////////////////////////////
+// 💰 BUY
+//////////////////////////////////////////////////
 
 app.post("/buy", async (req, res) => {
   try {
-    const { userId, amount, contractType = "CALL", duration = 5, symbol = "R_100" } = req.body;
-
-    if (!userId || !amount || amount <= 0) {
-      return res.status(400).json({ error: "Invalid parameters" });
-    }
+    const { userId, amount, symbol = "R_100" } = req.body;
 
     const session = getSession(userId);
-    if (!session) {
-      return res.status(404).json({ error: "Session not found" });
-    }
-
-    if (!session.ws || session.ws.readyState !== 1) {
-      return res.status(500).json({ error: "Connection lost" });
-    }
+    if (!session) throw new Error("No session");
 
     if (session.balance < amount) {
-      return res.status(400).json({ error: "Insufficient balance" });
+      throw new Error("Insufficient balance");
     }
 
-    const result = await buyTrade(session.ws, {
+    const result = await buyTrade(derivWs, {
       amount,
-      contractType,
-      duration,
       symbol,
       currency: session.currency
     });
 
-    const contractId = result.contractId;
-    registerContract(contractId, userId);
+    registerContract(result.contractId, userId);
 
     addContract(userId, {
-      contractId,
-      type: "buy",
-      amount,
-      payout: result.payout,
-      askPrice: result.askPrice,
-      createdAt: Date.now(),
-      status: "active",
-      profit: 0,
-      profitPercentage: 0
+      contractId: result.contractId,
+      amount
     });
 
-    await subscribeToContract(session.ws, contractId, userId);
-    updateSessionBalance(userId, session.balance - amount);
+    await subscribeToContract(derivWs, result.contractId, userId);
 
-    sendToUser(userId, {
-      type: "trade_executed",
-      contractId,
-      tradeType: "buy",
-      amount,
-      payout: result.payout,
-      askPrice: result.askPrice,
-      newBalance: session.balance - amount,
-      timestamp: Date.now()
-    });
-
-    res.json({
-      status: "success",
-      contractId,
-      payout: result.payout,
-      askPrice: result.askPrice,
-      newBalance: session.balance - amount
-    });
-  } catch (error) {
-    console.error("Buy trade error:", error);
-    res.status(400).json({ error: error.message || "Trade failed" });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
+
+//////////////////////////////////////////////////
+// 💸 SELL
+//////////////////////////////////////////////////
 
 app.post("/sell", async (req, res) => {
   try {
     const { userId, contractId, price } = req.body;
 
-    if (!userId || !contractId || price === undefined) {
-      return res.status(400).json({ error: "Invalid parameters" });
-    }
-
     const session = getSession(userId);
-    if (!session) {
-      return res.status(404).json({ error: "Session not found" });
-    }
+    if (!session) throw new Error("No session");
 
-    const contract = session.contracts.find(c => c.contractId === contractId);
-    if (!contract) {
-      return res.status(404).json({ error: "Contract not found" });
-    }
-
-    const result = await sellTrade(session.ws, contractId, price);
-
-    contract.status = "sold";
-    contract.sellPrice = price;
-    contract.soldAt = Date.now();
-
-    const profit = price - contract.amount;
-    updateSessionBalance(userId, session.balance + profit);
+    const result = await sellTrade(derivWs, contractId, price);
 
     unregisterContract(contractId);
 
-    sendToUser(userId, {
-      type: "trade_sold",
-      contractId,
-      sellPrice: price,
-      profit,
-      newBalance: session.balance + profit,
-      timestamp: Date.now()
-    });
-
-    res.json({
-      status: "success",
-      contractId,
-      price,
-      profit,
-      newBalance: session.balance + profit
-    });
-  } catch (error) {
-    console.error("Sell trade error:", error);
-    res.status(400).json({ error: error.message || "Sell failed" });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-app.get("/contracts/:userId", (req, res) => {
-  const contracts = getContracts(req.params.userId);
-  res.json({ contracts });
-});
+//////////////////////////////////////////////////
+// 📊 STATS
+//////////////////////////////////////////////////
 
-app.get("/session/:userId", (req, res) => {
-  const session = getSession(req.params.userId);
-  if (!session) {
-    return res.status(404).json({ error: "Session not found" });
-  }
-
+app.get("/stats", (_, res) => {
   res.json({
-    userId: session.userId,
-    accountId: session.accountId,
-    email: session.email,
-    currency: session.currency,
-    balance: session.balance,
-    contractCount: session.contracts.length,
-    createdAt: session.createdAt,
-    lastActivity: session.lastActivity
+    sessions: getSessionCount(),
+    clients: getClientCount(),
+    subscriptions: getSubscriptionCount()
   });
 });
 
-app.delete("/disconnect/:userId", (req, res) => {
-  unregisterUserContracts(req.params.userId);
-  unsubscribeAllContracts(req.params.userId);
-  deleteSession(req.params.userId);
-
-  sendToUser(req.params.userId, {
-    type: "disconnected",
-    message: "Session ended",
-    timestamp: Date.now()
-  });
-
-  res.json({ status: "disconnected" });
-});
-
-app.get("/stats", (req, res) => {
-  res.json({
-    server: {
-      expressPort: PORT,
-      wsPort: WS_PORT
-    },
-    stats: {
-      activeSessions: getSessionCount(),
-      connectedClients: getClientCount(),
-      activeSubscriptions: getSubscriptionCount()
-    },
-    sessions: getAllSessions().map(s => ({
-      userId: s.userId,
-      balance: s.balance,
-      contracts: s.contracts.length
-    }))
-  });
-});
+//////////////////////////////////////////////////
+// 🚀 START SERVER
+//////////////////////////////////////////////////
 
 app.listen(PORT, () => {
-  console.log(`🚀 Express server running on port ${PORT}`);
+  console.log(`🚀 Server running on ${PORT}`);
 });
