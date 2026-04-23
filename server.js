@@ -18,13 +18,49 @@ import {
   getAllSubscriptions,
   unsubscribeAllContracts
 } from "./tradeManager.js";
-import {
-  createWebSocketServer,
-  sendToUser,
-  sendContractUpdate,
-  getClientCount,
-  getSubscriptionCount
-} from "./websocketServer.js";
+let ws;
+
+function connect() {
+    ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+
+    ws.on('open', () => {
+        console.log("Connected to Deriv API");
+
+        ws.send(JSON.stringify({
+            authorize: process.env.API_TOKEN
+        }));
+    });
+
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+
+        console.log("RESPONSE:", data);
+
+        if (data.error) {
+            console.error("Deriv Error:", data.error.message);
+            return;
+        }
+
+        if (data.msg_type === 'authorize') {
+            ws.send(JSON.stringify({ balance: 1 }));
+        }
+
+        if (data.msg_type === 'balance') {
+            balanceData = data.balance;
+        }
+    });
+
+    ws.on('error', (err) => {
+        console.error("WebSocket Error:", err);
+    });
+
+    ws.on('close', () => {
+        console.log("WebSocket closed. Reconnecting...");
+        setTimeout(connect, 5000); // auto-reconnect
+    });
+}
+
+connect();
 import {
   registerContract,
   getUserForContract,
