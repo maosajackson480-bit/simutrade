@@ -342,3 +342,10 @@ app.get("/stats", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Express server running on port ${PORT}`);
 });
+// Replace your app.listen with this:
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server confirmed running on port ${PORT}`);
+});
+
+// If you have a separate WebSocket server, attach it to the 'server' variable above
+// instead of a separate port.
