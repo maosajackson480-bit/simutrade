@@ -1,4 +1,3 @@
-
 {
   "name": "simutrade",
   "version": "1.0.0",
@@ -8,7 +7,11 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
+    "build": "npm install",
     "frontend": "cd frontend && python -m http.server 8000"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "express": "^4.18.2",
