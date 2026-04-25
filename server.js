@@ -1,97 +1,55 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-
 import { connectDB } from "./database.js";
 
-import {
-  createDerivConnection,
-  authorizeUser,
-  getBalance
-} from "./derivSocket.js";
-
-import {
-  createSession,
-  getSession,
-  updateSessionBalance
-} from "./core/sessionManager.js";
-
+import { createDerivConnection, authorizeUser, getBalance } from "./derivSocket.js";
+import { createSession, getSession, updateSessionBalance } from "./core/sessionManager.js";
 import { buyTrade, sellTrade } from "./trading.js";
 
 import Trade from "./models/Trade.js";
-
-/**
- * 💰 WALLET SYSTEM
- */
-import {
-  getOrCreateWallet,
-  addBalance
-} from "./core/walletManager.js";
-
-/**
- * 🔐 AUTH SYSTEM
- */
 import User from "./models/User.js";
+
+import { getOrCreateWallet, addBalance } from "./core/walletManager.js";
+
 import { generateToken, hashPassword, comparePassword } from "./auth/auth.js";
-import { authMiddleware } from "./middleware/authMiddleware.js";
+import { authMiddleware, adminMiddleware } from "./middleware/authMiddleware.js";
 
 const app = express();
+
+/**
+ * ⚙️ MIDDLEWARE
+ */
 app.use(cors());
 app.use(express.json());
+app.use(rateLimit({ windowMs: 60 * 1000, max: 30 }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 /**
  * 🔥 CRASH PROTECTION
  */
-process.on("uncaughtException", (err) => {
-  console.error("🔥 UNCAUGHT EXCEPTION:", err);
-});
-
-process.on("unhandledRejection", (err) => {
-  console.error("🔥 UNHANDLED PROMISE:", err);
-});
+process.on("uncaughtException", (err) => console.error("🔥 UNCAUGHT:", err));
+process.on("unhandledRejection", (err) => console.error("🔥 UNHANDLED:", err));
 
 /**
- * 🧠 DATABASE CONNECT
- */
-(async () => {
-  try {
-    await connectDB();
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection failed:", err.message);
-    process.exit(1);
-  }
-})();
-
-/**
- * 🚦 RATE LIMIT
- */
-app.use(rateLimit({
-  windowMs: 60 * 1000,
-  max: 30
-}));
-
-/**
- * 🧠 HELPERS
+ * 🧠 HELPER
  */
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
- * 🔐 ADMIN MIDDLEWARE
+ * =========================
+ * ✅ ROOT FIX (IMPORTANT)
+ * =========================
  */
-function adminOnly(req, res, next) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ error: "Admin only" });
-  }
-  next();
-}
+app.get("/", (req, res) => {
+  res.send("🚀 SimuTrade backend is live");
+});
 
 /**
  * =========================
- * AUTH ROUTES
+ * 🔐 AUTH SYSTEM
  * =========================
  */
 
@@ -136,158 +94,135 @@ app.post("/login", asyncHandler(async (req, res) => {
 
 /**
  * =========================
- * ADMIN ROUTES 🔥
+ * 💰 WALLET
  * =========================
  */
 
-// VIEW ALL USERS
-app.get("/admin/users",
-  authMiddleware,
-  adminOnly,
-  asyncHandler(async (req, res) => {
-    const users = await User.find().select("-password");
-    res.json(users);
-  })
-);
+app.get("/wallet/:userId", asyncHandler(async (req, res) => {
+  const wallet = await getOrCreateWallet(req.params.userId);
+  res.json(wallet);
+}));
 
-// CREDIT USER WALLET
-app.post("/admin/credit",
-  authMiddleware,
-  adminOnly,
-  asyncHandler(async (req, res) => {
-    const { userId, amount } = req.body;
+app.post("/wallet/deposit", adminMiddleware, asyncHandler(async (req, res) => {
+  const { userId, amount } = req.body;
 
-    if (!userId || !amount) throw new Error("Invalid request");
-
-    const wallet = await addBalance(userId, amount, "ADMIN_CREDIT");
-
-    res.json({
-      message: "Wallet credited",
-      balance: wallet.balance
-    });
-  })
-);
+  const wallet = await addBalance(userId, amount, "ADMIN_DEPOSIT");
+  res.json(wallet);
+}));
 
 /**
  * =========================
- * WALLET
+ * 🔗 CONNECT
  * =========================
  */
-app.get("/wallet/:userId",
-  authMiddleware,
-  asyncHandler(async (req, res) => {
-    const wallet = await getOrCreateWallet(req.params.userId);
+app.post("/connect", authMiddleware, asyncHandler(async (req, res) => {
 
-    res.json(wallet);
-  })
-);
+  const { userId, token } = req.body;
 
-/**
- * =========================
- * CONNECT
- * =========================
- */
-app.post("/connect",
-  authMiddleware,
-  asyncHandler(async (req, res) => {
+  const ws = createDerivConnection();
 
-    const { userId, token } = req.body;
+  await new Promise((resolve, reject) => {
+    ws.on("open", resolve);
+    ws.on("error", reject);
+  });
 
-    const ws = createDerivConnection();
+  const account = await authorizeUser(ws, token);
+  const balance = await getBalance(ws);
 
-    await new Promise((resolve, reject) => {
-      ws.on("open", resolve);
-      ws.on("error", reject);
-    });
+  const session = await createSession(userId, ws, account);
+  await updateSessionBalance(userId, balance);
 
-    const account = await authorizeUser(ws, token);
-    const balance = await getBalance(ws);
+  session.ws = ws;
 
-    const session = await createSession(userId, ws, account);
-    await updateSessionBalance(userId, balance);
-
-    session.ws = ws;
-
-    res.json({ status: "connected", balance });
-  })
-);
+  res.json({ status: "connected", balance });
+}));
 
 /**
  * =========================
- * BUY
+ * 📈 BUY
  * =========================
  */
 const activeTrades = new Set();
 
-app.post("/buy",
-  authMiddleware,
-  asyncHandler(async (req, res) => {
+app.post("/buy", authMiddleware, asyncHandler(async (req, res) => {
 
-    const { userId, amount, contractType, duration, symbol } = req.body;
+  const { userId, amount, contractType, duration, symbol } = req.body;
 
-    const session = await getSession(userId);
-    if (!session) throw new Error("No session");
+  const session = await getSession(userId);
+  if (!session) throw new Error("No session");
 
-    if (activeTrades.has(userId)) throw new Error("Trade locked");
+  if (activeTrades.has(userId)) throw new Error("Trade locked");
 
-    activeTrades.add(userId);
+  activeTrades.add(userId);
 
-    try {
-      const result = await buyTrade(session.ws, {
-        amount,
-        contractType,
-        duration,
-        symbol
-      });
+  try {
+    const result = await buyTrade(session.ws, {
+      amount,
+      contractType,
+      duration,
+      symbol
+    });
 
-      await Trade.create({
-        userId,
-        amount,
-        contractType,
-        symbol,
-        contractId: result.contractId,
-        result: "pending"
-      });
+    await Trade.create({
+      userId,
+      amount,
+      contractType,
+      symbol,
+      contractId: result.contractId,
+      result: "pending"
+    });
 
-      res.json(result);
+    res.json(result);
 
-    } finally {
-      activeTrades.delete(userId);
-    }
-  })
-);
+  } finally {
+    activeTrades.delete(userId);
+  }
+}));
 
 /**
  * =========================
- * SELL
+ * 📉 SELL + WALLET UPDATE
  * =========================
  */
-app.post("/sell",
-  authMiddleware,
-  asyncHandler(async (req, res) => {
+app.post("/sell", authMiddleware, asyncHandler(async (req, res) => {
 
-    const { userId, contractId } = req.body;
+  const { userId, contractId } = req.body;
 
-    const session = await getSession(userId);
-    if (!session) throw new Error("No session");
+  const session = await getSession(userId);
+  if (!session) throw new Error("No session");
 
-    const result = await sellTrade(session.ws, contractId);
+  const result = await sellTrade(session.ws, contractId);
 
-    await Trade.findOneAndUpdate(
-      { contractId },
-      {
-        result: result.profit > 0 ? "win" : "loss",
-        profit: result.profit
-      }
-    );
-
-    if (result.profit) {
-      await addBalance(userId, result.profit, "TRADE_RESULT");
+  await Trade.findOneAndUpdate(
+    { contractId },
+    {
+      result: result.profit > 0 ? "win" : "loss",
+      profit: result.profit
     }
+  );
 
-    res.json(result);
-  })
-);
+  if (result.profit) {
+    await addBalance(userId, result.profit, "TRADE_RESULT");
+  }
+
+  res.json(result);
+}));
+
+/**
+ * =========================
+ * 👑 ADMIN ROUTES
+ * =========================
+ */
+
+app.get("/admin/users", adminMiddleware, asyncHandler(async (req, res) => {
+  const users = await User.find().select("-password");
+  res.json(users);
+}));
+
+app.get("/admin/trades", adminMiddleware, asyncHandler(async (req, res) => {
+  const trades = await Trade.find().sort({ createdAt: -1 });
+  res.json(trades);
+}));
 
 /**
  * ❌ ERROR HANDLER
@@ -298,8 +233,20 @@ app.use((err, req, res, next) => {
 });
 
 /**
- * 🚀 START
+ * 🚀 START SERVER
  */
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+const start = async () => {
+  try {
+    await connectDB();
+    console.log("✅ MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+  } catch (err) {
+    console.error("❌ Startup failed:", err.message);
+  }
+};
+
+start();
