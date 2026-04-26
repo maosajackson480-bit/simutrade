@@ -4,14 +4,18 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Eye, EyeOff, LogIn, Play, AlertCircle } from "lucide-react";
-import { apiFetch, ENDPOINTS, saveAuth } from "@/lib/api";
+// UPDATED: Using a relative path to ensure the build finds the file
+import { apiFetch, ENDPOINTS, saveAuth } from "../lib/api";
 
+// This stays as is for type safety, but we'll use local defaults 
+// since Next.js pages don't receive these props directly from the router
 interface LoginScreenProps {
-  onLogin: (token: string, isDemo: boolean) => void;
-  onLogoClick: () => void;
+  onLogin?: (token: string, isDemo: boolean) => void;
+  onLogoClick?: () => void;
 }
 
-export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
+// UPDATED: Added 'default' export and named it 'Page' for Next.js standards
+export default function Page({ onLogin, onLogoClick }: LoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +28,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
     setIsLoading(true);
 
     try {
-      // UPDATED: Mapping email state to userId key for the backend
       const data = await apiFetch<{ token: string; user?: { email: string } }>(
         ENDPOINTS.login,
         {
@@ -38,13 +41,17 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
 
       if (data.token) {
         saveAuth(data.token, data.user || { email });
+        // If onLogin prop is provided, call it; otherwise, redirect
+        if (onLogin) {
+          onLogin(data.token, false);
+        } else {
+          window.location.href = "/dashboard";
+        }
       }
-
-      onLogin(data.token, false);
     } catch (err) {
       if (err instanceof TypeError && err.message.includes("fetch")) {
         setError(
-          "Cannot connect to server. The server may be starting up (takes ~30s on first request). Please try again."
+          "Cannot connect to server. The server may be starting up. Please try again."
         );
       } else if (err instanceof Error) {
         setError(err.message);
@@ -58,12 +65,15 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
 
   const handleDemoLogin = () => {
     saveAuth("demo_token_12345", { email: "demo@simutrade.com" });
-    onLogin("demo_token_12345", true);
+    if (onLogin) {
+      onLogin("demo_token_12345", true);
+    } else {
+      window.location.href = "/dashboard";
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#0a1628] flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Background grid effect */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="absolute inset-0"
@@ -77,7 +87,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
         />
       </div>
 
-      {/* Glowing orb effect */}
       <motion.div
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl"
         animate={{
@@ -87,16 +96,14 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
         transition={{ duration: 4, repeat: Infinity }}
       />
 
-      {/* Login Card */}
       <motion.div
         className="w-full max-w-md bg-[#0d1f35]/90 backdrop-blur-xl rounded-2xl border border-teal-500/20 p-6 sm:p-8 relative z-10"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Logo */}
         <motion.button
-          onClick={onLogoClick}
+          onClick={() => onLogoClick?.()}
           className="flex flex-col items-center mb-8 mx-auto hover:opacity-80 transition-opacity"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -115,7 +122,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           </h1>
         </motion.button>
 
-        {/* Title */}
         <div className="text-center mb-6">
           <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">
             Connect Your Deriv Account
@@ -125,7 +131,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           </p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <motion.div
             className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-2"
@@ -137,9 +142,7 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           </motion.div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
-          {/* Email Field */}
           <div>
             <label
               htmlFor="email"
@@ -158,7 +161,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
             />
           </div>
 
-          {/* Password Field */}
           <div>
             <label
               htmlFor="password"
@@ -190,7 +192,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
             </div>
           </div>
 
-          {/* Login Button */}
           <motion.button
             type="submit"
             disabled={isLoading}
@@ -216,7 +217,6 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           </motion.button>
         </form>
 
-        {/* Create Account Link */}
         <div className="text-center mt-4">
           <p className="text-gray-400 text-sm">
             {"Don't have a Deriv account? "}
@@ -231,14 +231,12 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           </p>
         </div>
 
-        {/* Divider */}
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-gray-600" />
           <span className="text-gray-500 text-sm">or</span>
           <div className="flex-1 h-px bg-gray-600" />
         </div>
 
-        {/* Demo Mode Button */}
         <motion.button
           type="button"
           onClick={handleDemoLogin}
@@ -250,14 +248,12 @@ export function LoginScreen({ onLogin, onLogoClick }: LoginScreenProps) {
           Continue with Demo Account
         </motion.button>
 
-        {/* Footer text */}
         <p className="text-center text-gray-500 text-xs mt-6">
           Demo mode uses simulated data. For live trading, connect your Deriv
           account.
         </p>
       </motion.div>
 
-      {/* Bottom info */}
       <motion.div
         className="mt-8 flex items-center gap-4 text-gray-500 text-xs"
         initial={{ opacity: 0 }}
