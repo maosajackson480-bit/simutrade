@@ -31,19 +31,13 @@ export function createDerivConnection() {
  */
 export function authorizeUser(ws, token) {
   return new Promise((resolve, reject) => {
-    ws.send(
-      JSON.stringify({
-        authorize: token
-      })
-    );
+    ws.send(JSON.stringify({ authorize: token }));
 
     ws.once("message", (msg) => {
       const data = JSON.parse(msg);
 
       if (data.error) {
-        return reject(
-          new Error(data.error.message)
-        );
+        return reject(new Error(data.error.message));
       }
 
       resolve(data.authorize);
@@ -56,19 +50,13 @@ export function authorizeUser(ws, token) {
  */
 export function getBalance(ws) {
   return new Promise((resolve, reject) => {
-    ws.send(
-      JSON.stringify({
-        balance: 1
-      })
-    );
+    ws.send(JSON.stringify({ balance: 1 }));
 
     ws.once("message", (msg) => {
       const data = JSON.parse(msg);
 
       if (data.error) {
-        return reject(
-          new Error(data.error.message)
-        );
+        return reject(new Error(data.error.message));
       }
 
       resolve(data.balance.balance);
@@ -77,27 +65,46 @@ export function getBalance(ws) {
 }
 
 /**
- * GET LIVE TICKS
+ * ⚠️ ONE-TIME TICK (NOT STREAM)
  */
 export function getTicks(ws, symbol) {
   return new Promise((resolve, reject) => {
-    ws.send(
-      JSON.stringify({
-        ticks: symbol,
-        subscribe: 1
-      })
-    );
+    ws.send(JSON.stringify({
+      ticks: symbol,
+      subscribe: 1
+    }));
 
     ws.once("message", (msg) => {
       const data = JSON.parse(msg);
 
       if (data.error) {
-        return reject(
-          new Error(data.error.message)
-        );
+        return reject(new Error(data.error.message));
       }
 
       resolve(data.tick);
     });
+  });
+}
+
+/**
+ * 🔥 REAL-TIME STREAM (THIS IS THE IMPORTANT ONE)
+ */
+export function streamTicks(ws, symbol, onTick) {
+  ws.send(JSON.stringify({
+    ticks: symbol,
+    subscribe: 1
+  }));
+
+  ws.on("message", (msg) => {
+    const data = JSON.parse(msg);
+
+    if (data.error) {
+      console.error("❌ Tick error:", data.error.message);
+      return;
+    }
+
+    if (data.tick) {
+      onTick(data.tick);
+    }
   });
 }
