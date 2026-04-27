@@ -100,8 +100,4 @@ export function getTicks(ws, symbol) {
       resolve(data.tick);
     });
   });
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 917310c1f5077d67f79063d9f7d17894c2232766
