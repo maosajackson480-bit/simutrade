@@ -50,6 +50,7 @@ const PORT = process.env.PORT || 10000;
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "https://v0-simutrade-platform-build.vercel.app",
   process.env.FRONTEND_URL
 ];
 
