@@ -6,7 +6,8 @@ import { connectDB } from "./database.js";
 import {
   createDerivConnection,
   authorizeUser,
-  getBalance
+  getBalance,
+  streamTicks
 } from "./derivSocket.js";
 
 import {
@@ -40,18 +41,35 @@ const app = express();
 
 /**
  * ===================================
- * ⚙️ MIDDLEWARE
+ * ⚙️ SETTINGS
+ * ===================================
+ */
+app.set("trust proxy", 1);
+
+const PORT = process.env.PORT || 10000;
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL
+];
+
+/**
+ * ===================================
+ * 🌐 CORS
  * ===================================
  */
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://v0-simutrade.vercel.app"
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true
   })
 );
 
@@ -63,8 +81,6 @@ app.use(
     max: 50
   })
 );
-
-const PORT = process.env.PORT || 10000;
 
 /**
  * ===================================
@@ -98,18 +114,99 @@ app.get("/", (req, res) => {
 
 /**
  * ===================================
+ * ❤️ HEALTH CHECK
+ * ===================================
+ */
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+/**
+ * ===================================
+ * 🔥 DERIV CONNECT
+ * ===================================
+ */
+app.post("/api/deriv/connect", asyncHandler(async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    throw new Error("Token is required");
+  }
+
+  let ws;
+
+  try {
+    ws = await createDerivConnection();
+    const user = await authorizeUser(ws, token);
+    const balance = await getBalance(ws);
+
+    res.json({
+      success: true,
+      user: {
+        loginid: user.loginid,
+        balance
+      }
+    });
+
+  } catch (err) {
+    console.error("Deriv Error:", err.message);
+
+    res.status(400).json({
+      error: err.message
+    });
+
+  } finally {
+    if (ws) ws.close();
+  }
+}));
+
+/**
+ * ===================================
+ * 📡 LIVE TICKS STREAM (SSE)
+ * ===================================
+ */
+app.get("/api/deriv/ticks/:symbol", asyncHandler(async (req, res) => {
+  const { symbol } = req.params;
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: "Token required" });
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  let ws;
+
+  try {
+    ws = await createDerivConnection();
+    await authorizeUser(ws, token);
+
+    streamTicks(ws, symbol, (tick) => {
+      res.write(`data: ${JSON.stringify(tick)}\n\n`);
+    });
+
+    req.on("close", () => {
+      console.log("Client disconnected");
+      if (ws) ws.close();
+    });
+
+  } catch (err) {
+    console.error("Tick Stream Error:", err.message);
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+  }
+}));
+
+/**
+ * ===================================
  * 📊 ASSETS
  * ===================================
  */
-app.get("/assets", (req, res) => {
+app.get("/api/assets", (req, res) => {
   res.json({
     derived: {
-      baskets: [
-        "AUD Basket",
-        "EUR Basket",
-        "GBP Basket",
-        "USD Basket"
-      ],
+      baskets: ["AUD Basket", "EUR Basket", "GBP Basket", "USD Basket"],
       synthetics: [
         "Volatility 10",
         "Volatility 25",
@@ -122,31 +219,18 @@ app.get("/assets", (req, res) => {
         "Crash 500"
       ]
     },
-    forex: [
-      "EURUSD",
-      "GBPUSD",
-      "USDJPY",
-      "AUDUSD",
-      "USDCHF"
-    ],
-    stockIndices: [
-      "US500",
-      "USTECH",
-      "Wall Street",
-      "UK100",
-      "Germany30"
-    ]
+    forex: ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCHF"],
+    stockIndices: ["US500", "USTECH", "Wall Street", "UK100", "Germany30"]
   });
 });
 
 /**
  * ===================================
- * 📈 LIVE CHART DATA
+ * 📈 CHART (TEMP)
  * ===================================
  */
-app.get("/chart/:symbol", (req, res) => {
+app.get("/api/chart/:symbol", (req, res) => {
   const candles = [];
-
   let price = 950;
 
   for (let i = 0; i < 60; i++) {
@@ -169,7 +253,7 @@ app.get("/chart/:symbol", (req, res) => {
  * 🔐 AUTH
  * ===================================
  */
-app.post("/register", asyncHandler(async (req, res) => {
+app.post("/api/register", asyncHandler(async (req, res) => {
   const { userId, password } = req.body;
 
   if (!userId || !password)
@@ -188,12 +272,10 @@ app.post("/register", asyncHandler(async (req, res) => {
     role: "user"
   });
 
-  res.json({
-    message: "User created"
-  });
+  res.json({ message: "User created" });
 }));
 
-app.post("/login", asyncHandler(async (req, res) => {
+app.post("/api/login", asyncHandler(async (req, res) => {
   const { userId, password } = req.body;
 
   const user = await User.findOne({ userId });
@@ -201,10 +283,7 @@ app.post("/login", asyncHandler(async (req, res) => {
   if (!user)
     throw new Error("User not found");
 
-  const ok = await comparePassword(
-    password,
-    user.password
-  );
+  const ok = await comparePassword(password, user.password);
 
   if (!ok)
     throw new Error("Invalid credentials");
@@ -220,126 +299,13 @@ app.post("/login", asyncHandler(async (req, res) => {
 
 /**
  * ===================================
- * 🎮 DEMO / REAL MODE
- * ===================================
- */
-app.post("/mode", authMiddleware, (req, res) => {
-  const { mode } = req.body;
-
-  res.json({
-    success: true,
-    mode: mode || "demo"
-  });
-});
-
-/**
- * ===================================
  * 💰 WALLET
  * ===================================
  */
-app.get("/wallet/:userId", asyncHandler(async (req, res) => {
-  const wallet = await getOrCreateWallet(
-    req.params.userId
-  );
-
+app.get("/api/wallet", authMiddleware, asyncHandler(async (req, res) => {
+  const wallet = await getOrCreateWallet(req.user.userId);
   res.json(wallet);
 }));
-
-/**
- * ===================================
- * 🤖 BOT BUILDER
- * ===================================
- */
-app.post("/bot/create", authMiddleware, (req, res) => {
-  res.json({
-    success: true,
-    message: "Bot created",
-    config: req.body
-  });
-});
-
-/**
- * ===================================
- * 📚 FREE BOTS
- * ===================================
- */
-app.get("/bots/free", (req, res) => {
-  res.json([
-    {
-      name: "Over 2 Bot",
-      strategy: "Martingale"
-    },
-    {
-      name: "Rise/Fall Bot",
-      strategy: "Trend"
-    },
-    {
-      name: "Digit Differs",
-      strategy: "Sniper"
-    }
-  ]);
-});
-
-/**
- * ===================================
- * 📉 ANALYSIS TOOL
- * ===================================
- */
-app.get("/analysis/:symbol", (req, res) => {
-  res.json({
-    symbol: req.params.symbol,
-    trend: "Bullish",
-    support: 948.2,
-    resistance: 955.7
-  });
-});
-
-/**
- * ===================================
- * 🧠 STRATEGY
- * ===================================
- */
-app.get("/strategy", (req, res) => {
-  res.json([
-    "Trend Following",
-    "Breakout Strategy",
-    "Scalping",
-    "Martingale",
-    "Anti-Martingale"
-  ]);
-});
-
-/**
- * ===================================
- * 👥 COPY TRADING
- * ===================================
- */
-app.get("/copy-trading", (req, res) => {
-  res.json([
-    {
-      trader: "Alpha Trader",
-      roi: "+34%"
-    },
-    {
-      trader: "Smart FX",
-      roi: "+21%"
-    }
-  ]);
-});
-
-/**
- * ===================================
- * 🛡️ RISK MANAGEMENT
- * ===================================
- */
-app.get("/risk-management", (req, res) => {
-  res.json({
-    maxDailyLoss: "10%",
-    stopLoss: true,
-    takeProfit: true,
-    recommendedStake: "2%"
-  });
-});
 
 /**
  * ===================================
@@ -362,20 +328,14 @@ app.use((err, req, res, next) => {
 const start = async () => {
   try {
     await connectDB();
-
     console.log("✅ MongoDB Connected");
 
     app.listen(PORT, () => {
-      console.log(
-        `🚀 Running on port ${PORT}`
-      );
+      console.log(`🚀 Running on port ${PORT}`);
     });
 
   } catch (err) {
-    console.error(
-      "❌ Startup failed:",
-      err.message
-    );
+    console.error("❌ Startup failed:", err.message);
   }
 };
 
